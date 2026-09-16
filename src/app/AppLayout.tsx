@@ -11,9 +11,12 @@ import {
   Network,
   Layers,
   PhoneCall,
+  Search,
+  Building2,
   Menu,
   X,
 } from 'lucide-react'
+
 import { cn } from '@/lib/utils'
 
 interface NavItemConfig {
@@ -71,7 +74,22 @@ const NAV_GROUPS: NavGroup[] = [
         testId: 'nav-commissions',
       },
       {
+        label: 'Commission Search',
+        to: '/commissions/search',
+        icon: Search,
+        permission: 'commissionPermissions',
+        testId: 'nav-commissions-search',
+      },
+      {
+        label: 'Franchise Balance',
+        to: '/commissions/franchise-balance',
+        icon: Building2,
+        permission: 'commissionPermissions',
+        testId: 'nav-franchise-balance',
+      },
+      {
         label: 'Plans & Numbers',
+
         to: '/plans',
         icon: PhoneCall,
         permission: 'plansNumberpermissions',

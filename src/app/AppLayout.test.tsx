@@ -98,6 +98,19 @@ describe('App Routing & Layout Navigation', () => {
   })
 
   it('renders feature pages when navigated to directly', () => {
+    useAuthStore.getState().setAuth(
+      {
+        userId: 101,
+        username: 'admin_user',
+        hrmsId: 'HRMS101',
+        roleId: 1,
+        roleName: 'System Administrator',
+      },
+      {
+        dealerPermissions: 1,
+      }
+    )
+
     renderApp('/dealers')
 
     expect(screen.getByTestId('dealers-page')).toBeInTheDocument()

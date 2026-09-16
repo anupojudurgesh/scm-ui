@@ -443,7 +443,7 @@ export function UserListPage() {
 
         {/* Create User Dialog */}
         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white border-slate-200">
+          <DialogContent className="sm:max-w-4xl lg:max-w-5xl w-full max-h-[90vh] overflow-y-auto bg-white border-slate-200 p-6">
             <DialogHeader>
               <div className="flex items-center gap-2">
                 <UserPlus className="h-5 w-5 text-cyan-600" />

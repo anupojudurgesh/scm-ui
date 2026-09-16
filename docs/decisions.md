@@ -178,4 +178,105 @@ Wallet Management domain, since it's a real part of the API surface.
 - **32-Key Bitmask Permissions Matrix:** Grouped all 32 Postman collection permission keys into 6 operational categories ('Core Administration', 'Dealer & Wallet Operations', 'Commission Types', 'SIM & Inventory', 'Reports & Activity', 'Advanced & System Tools'). Provided batch toggle quick actions ("Select All" / "Clear" per category, and global "Grant All" / "Clear All").
 
 **Why:** Completely prevents unverified user account provisioning in production. The two-phase submission pattern (Client Validation -> OTP Challenge -> Backend Mutation) guarantees zero rogue accounts can be created without cryptographic MSISDN verification.
-
+
+---
+
+## Decision: Multi-Tab Commission Configuration Architecture with Dedicated OTP Topics
+
+**Context:** The Commission Configuration domain manages financial payouts, tariff formulas, TDS withholdings, and tier structures across three distinct business lines: Prepaid (FRC & OTF), Postpaid, and Landline. Write operations in each business line are high-risk financial configurations requiring distinct audit trails and separate OTP topics (`PrepaidFrc`, `PrepaidOtf`, `Postpaid`, `Landline`).
+
+**Decision:**
+- **Dedicated Commission API Layer (`src/api/commission.api.ts`):** Mapped exact payload contracts from Postman excerpts for `getCategory`, `getZoneBasedCircles`, `saveCommissionConfig` (FRC), `saveMultipleCommissionConfig` (OTF), `postpaidCommissionConfig`, and `landlineCommissionConfig` with typed TanStack Query hooks.
+- **Multi-Tab Architecture with shadcn Tabs (`src/features/commissions/CommissionConfigPage.tsx`):**
+  - Divided configuration into main tabs: `Prepaid FRC/OTF`, `Postpaid`, and `Landline`.
+  - Inside `Prepaid FRC/OTF`, provided sub-tab switching between FRC (Single Circle via `CircleSelector`) and OTF (Zone-scoped via `ZoneSelector` -> `CircleSelector`).
+- **Dedicated OTP Topics per Action:**
+  - Prepaid FRC -> `topic: 'PrepaidFrc'` -> calls `saveCommissionConfig`.
+  - Prepaid OTF -> `topic: 'PrepaidOtf'` -> calls `saveMultipleCommissionConfig`.
+  - Postpaid -> `topic: 'Postpaid'` -> calls `postpaidCommissionConfig`.
+  - Landline -> `topic: 'Landline'` -> calls `landlineCommissionConfig`.
+- **Pre-Submission Validation & Deferred Execution:** Form submission validates via Zod schemas (`src/schemas/commission.schema.ts`), enters pending state, and opens `OTPVerificationModal`. Mutations are strictly prevented from running until OTP verification succeeds.
+- **Permission Guard:** The entire page is secured behind `<PermissionGuard permission="commissionPermissions">`.
+
+**Why:** Enforces cryptographic 2-step verification tailored to each financial line while delivering a unified, ergonomic tabbed interface for telecom operators.
+
+---
+
+## Decision: Commission Search Directory with Line-Bar Tabs, `Modify_[Type]` OTP Topics, and Destructive ConfirmationDialog
+
+**Context:** Operators need to search, inspect, modify, and delete commission slab configurations across services (Prepaid FRC, Prepaid OTF, Postpaid, Landline). Modifying live financial parameters requires specific audit trails and per-service OTP verification topics (`Modify_PrepaidFRC`, `Modify_PrepaidOTF`, `Modify_Postpaid`, `Modify_Landline`), while deletion is permanent and requires explicit confirmation.
+
+**Decision:**
+- **Search & Filter Surface (`src/features/commissions/CommissionSearchPage.tsx`):**
+  - Modern line-bar tabs (`TabsList variant="line"`) for instant switching between `Prepaid FRC`, `Prepaid OTF`, `Postpaid`, and `Landline`.
+  - Filter toolbar with `SearchToolbar` providing debounced text search, Circle selector dropdown (`useAllCirclesQuery`), Category selector dropdown (`useCategoriesQuery`), and Denomination input.
+  - Polymorphic `DataTable` columns that automatically adapt column definitions to the active tariff structure (e.g., sellerCommission/fraCommission/TDS for FRC vs actualCommission/capLimit/sellerLevel for Postpaid vs fromAmount-toAmount range for Landline).
+- **OTP-Gated Modification Flow:**
+  - Row action "Edit" opens a pre-filled configuration dialog tailored to that slab type.
+  - Submitting edit changes strictly does **not** call update mutations directly.
+  - Opens `OTPVerificationModal` with exact topic mapping:
+    - Prepaid FRC -> `topic: 'Modify_PrepaidFRC'` -> calls `updateCommissionConfig`.
+    - Prepaid OTF -> `topic: 'Modify_PrepaidOTF'` -> calls `updateCommissionConfig`.
+    - Postpaid -> `topic: 'Modify_Postpaid'` -> calls `updatePostpaidCommission`.
+    - Landline -> `topic: 'Modify_Landline'` -> calls `updateLandlineCommission`.
+  - Mutation only executes upon verified OTP callback.
+- **Safe Destructive Deletion:**
+  - Row action "Delete" triggers `ConfirmationDialog` with `destructive={true}`.
+  - On user confirmation, calls `deleteCommissionConfig`, `deletePostpaidCommission`, or `deleteLandlineCommission` depending on active type.
+- **Permission Guard:** Secured under `<PermissionGuard permission="commissionPermissions">`.
+
+**Why:** Protects live commission tariffs from unintended modification while providing operators with an agile, consolidated management directory.
+
+---
+
+## Decision: Franchise Add Balance Approvals with Dual OTP Topics
+
+**Context:** Franchisees request balance replenishment transfers into their distribution wallets. Authorizing or declining financial balance additions impacts telecom ledger balances and requires individual operator authorization with distinct OTP topics (`FranchiseAddbalanceApprove` and `FranchiseAddbalanceReject`).
+
+**Decision:**
+- **Directory Surface (`src/features/commissions/FranchiseAddBalancePage.tsx`):**
+  - Displays pending `franchiseAddBalanceTransactions` fetched via `getFranchiseAddBalanceTransactions` with Circle filtering and debounced search.
+  - Columns show Sequence ID, Source & Destination MSISDNs, formatted currency amount (`₹`), circle, requester, creation timestamp, and `StatusBadge`.
+- **Dedicated Dual OTP Protection:**
+  - **Approve Action:** Row action "Approve" triggers `OTPVerificationModal` with `topic: 'FranchiseAddbalanceApprove'`. Only upon verification is `approveFranchiseAddBalance({ fabSeqList: [seq], actionUser })` executed.
+  - **Reject Action:** Row action "Reject" first prompts a confirmation modal to prevent accidental clicks, then triggers `OTPVerificationModal` with `topic: 'FranchiseAddbalanceReject'`. Only upon verification is `rejectFranchiseAddBalance({ fabSeqList: [seq], actionUser })` executed.
+- **Permission Guard:** Gated with `<PermissionGuard permission="commissionPermissions">`.
+
+**Why:** Enforces cryptographic 2-factor accountability on every single franchise wallet balance change, meeting telecom compliance and financial security mandates.
+
+---
+
+## Decision: Dealer Management Domain — Multipart/FormData Onboarding, Hierarchy Tracking, and 5-Topic OTP Governance
+
+**Context:** The telecom channel dealer network (Franchises, Sub-Franchises, Retailers) requires administrative management: onboarding new partner entities with KYC identity documents (GST, PAN, Aadhaar, Certificate upload), inspecting parent/child hierarchy mappings (`srcMsisdn` -> `destMsisdn`), updating KYC details, activating/suspending accounts, resetting MPINs, and restructuring distribution chains. Because these operations affect downstream cash flows and channel incentives, every state mutation requires cryptographic OTP verification with dedicated topics.
+
+**Finding:**
+1. **Multipart Payload Requirement**: In `docs/api-mapping.md`, the backend `POST /scm-dealer-api/dealerManagement/createDealer` route does not accept JSON. Instead, it requires `multipart/form-data` with:
+   - A `'dealer'` field containing the serialized JSON string blob of metadata.
+   - A `'certificate'` field containing the binary document/image file (`File`).
+2. **Dedicated OTP Topic Matrix**:
+   - Create Dealer: `Dealercreation`
+   - Modify Dealer Info: `Modifydealer`
+   - Status Transition: `DealerStatus`
+   - Reset Dealer MPIN: `DealerMpinreset`
+   - Hierarchy Transfer: `DealerHierarchyChange`
+
+**Decision:**
+- **Flexible HTTP Client (`src/api/client.ts`):**
+  - Updated `apiClient` to check `options?.body instanceof FormData`. If true, it omits the default `'Content-Type': 'application/json'` header so that the browser automatically generates `multipart/form-data; boundary=...`.
+- **Multipart Dealer Creation (`src/api/dealer.api.ts` & `src/features/dealers/CreateDealerForm.tsx`):**
+  - Built `CreateDealerForm` with structured `FormSection` blocks, cascading `ZoneSelector` -> `CircleSelector` -> `SSASelector`, and a file upload dropzone accepting PDF and images up to 5MB.
+  - On validation pass, triggers `OTPVerificationModal` with `topic: 'Dealercreation'`.
+  - On verified OTP, packages metadata into a JSON string blob on key `'dealer'`, appends the uploaded file to key `'certificate'`, and sends via `createDealerMutation`.
+- **Dealer Directory & Profile (`src/features/dealers/`):**
+  - `DealerListPage.tsx`: `DataTable` with `SearchToolbar` filtering by Circle, Dealer Tier, Status, and search query.
+  - `DealerDetailPage.tsx`: Read-only telemetry and profile cards, including an interactive distribution tree showing current hierarchy (`srcMsisdn` -> `destMsisdn`).
+- **OTP-Gated Account Management:**
+  - **Edit Dealer**: Dialog pre-filled with existing dealer attributes, verified via `Modifydealer`, executes `updateDealer`.
+  - **Status Change**: Action trigger with `ConfirmationDialog`, verified via `DealerStatus`, executes `changeDealerStatus`.
+  - **MPIN Reset**: Irreversible warning via `ConfirmationDialog (destructive=true)`, verified via `DealerMpinreset`, executes `resetMpin`.
+  - **Hierarchy Change**: Reassignment modal mapping Source -> Destination MSISDN, verified via `DealerHierarchyChange`, executes `changeDealerHierarchy`.
+- **Security & Permissions**:
+  - Both `DealerListPage` and `DealerDetailPage` are gated under `<PermissionGuard permission="dealerPermissions">`.
+
+**Why:** Satisfies backend multipart requirements without breaking existing JSON endpoints, enforces telecom compliance on channel entity lifecycle actions, and prevents accidental credential resets or unauthorized hierarchy modifications.

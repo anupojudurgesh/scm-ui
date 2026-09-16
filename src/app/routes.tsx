@@ -2,8 +2,12 @@ import { Routes, Route, Navigate, type RouteObject } from 'react-router-dom'
 import { AppLayout } from './AppLayout'
 import { DashboardPage } from '@/features/dashboard'
 import { UsersPage } from '@/features/users/UsersPage'
-import { DealersPage } from '@/features/dealers/DealersPage'
-import { CommissionsPage } from '@/features/commissions/CommissionsPage'
+import { DealerListPage, DealerDetailPage } from '@/features/dealers'
+import {
+  CommissionConfigPage,
+  CommissionSearchPage,
+  FranchiseAddBalancePage,
+} from '@/features/commissions'
 import { PlansPage } from '@/features/plans/PlansPage'
 
 export const routesConfig: RouteObject[] = [
@@ -25,11 +29,23 @@ export const routesConfig: RouteObject[] = [
       },
       {
         path: 'dealers',
-        element: <DealersPage />,
+        element: <DealerListPage />,
+      },
+      {
+        path: 'dealers/:msisdn',
+        element: <DealerDetailPage />,
       },
       {
         path: 'commissions',
-        element: <CommissionsPage />,
+        element: <CommissionConfigPage />,
+      },
+      {
+        path: 'commissions/search',
+        element: <CommissionSearchPage />,
+      },
+      {
+        path: 'commissions/franchise-balance',
+        element: <FranchiseAddBalancePage />,
       },
       {
         path: 'plans',
@@ -50,11 +66,16 @@ export function AppRoutes() {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="users" element={<UsersPage />} />
-        <Route path="dealers" element={<DealersPage />} />
-        <Route path="commissions" element={<CommissionsPage />} />
+        <Route path="dealers" element={<DealerListPage />} />
+        <Route path="dealers/:msisdn" element={<DealerDetailPage />} />
+        <Route path="commissions" element={<CommissionConfigPage />} />
+        <Route path="commissions/search" element={<CommissionSearchPage />} />
+        <Route path="commissions/franchise-balance" element={<FranchiseAddBalancePage />} />
         <Route path="plans" element={<PlansPage />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>
   )
 }
+
+

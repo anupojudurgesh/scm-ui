@@ -16,13 +16,18 @@ export class ApiError extends Error {
 
 export async function apiClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`
+  const isFormData = typeof FormData !== 'undefined' && options?.body instanceof FormData
+
+  const headers: Record<string, string> = {
+    ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
+    ...(options?.headers as Record<string, string> | undefined),
+  }
+
   const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
     ...options,
+    headers,
   })
+
 
   if (!response.ok) {
     let errorData: unknown

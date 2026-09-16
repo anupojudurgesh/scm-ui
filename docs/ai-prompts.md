@@ -482,3 +482,114 @@ Write tests: schema validation catches invalid required fields, form renders all
 - Realistic Zod validation with 32-key permission matrix.
 - 100% test pass rate across 133 tests with zero production build regressions.
 
+---
+
+### Prompt 11: Commission API & CommissionConfigPage with OTP Gating
+
+**User Request:**
+> Build `src/api/commission.api.ts` with hooks for: `getCategory`, `getZoneBasedCircles` (reuse existing masterdata patterns), `saveCommissionConfig` (FRC), `postpaidCommissionConfig`, `landlineCommissionConfig` — matching the exact payload shapes in `docs/api-mapping.md`'s Postman collection excerpts.
+>
+> Build `src/features/commissions/CommissionConfigPage.tsx` using shadcn Tabs for Prepaid FRC/OTF, Postpaid, Landline. Each tab has its own form: select category (from `getCategory`), select circle (via `CircleSelector`, or `ZoneSelector→CircleSelector` if zone-scoped), enter commission-specific fields (`sellerCommission`, `fraCommission`, `subCommission`, `tds`, `denomination` for FRC; `tdsAmount`, `actualCommission`, `sellerLevel`, `cap_limit` for postpaid; `fromAmount`/`toAmount` range for landline). Each form's submit triggers the correct OTP topic (`PrepaidFrc` / `PrepaidOtf` / `Postpaid` / `Landline`) via `useOtpFlow`, and only calls its save mutation on OTP success. Wrap the whole page in `PermissionGuard` `permission='commissionPermissions'`. Write tests confirming each tab's form triggers the correct OTP topic on submit.
+
+**Solution:**
+1. Created `src/api/commission.api.ts`:
+   - Data interfaces: `Category`, `SaveCommissionConfigPayload`, `SaveMultipleCommissionConfigPayload`, `PostpaidCommissionConfigPayload`, `LandlineCommissionConfigPayload`.
+   - API service functions calling endpoints mapped in `docs/api-mapping.md`:
+     - `getCategory`: `GET /scm-db-api/masterdata-db-api/getCategory`
+     - `getZoneBasedCircles`: `GET /scm-db-api/masterdata-db-api/zonebasedcircles?zoneId={zoneId}`
+     - `saveCommissionConfig`: `POST /scm-plans-api/scm-product-api/saveCommissionConfig`
+     - `saveMultipleCommissionConfig`: `POST /scm-plans-api/scm-product-api/savemultipleCommissionConfig?zoneId={zoneId}`
+     - `postpaidCommissionConfig`: `POST /scm-plans-api/scm-product-api/postpaidCommissionConfig`
+     - `landlineCommissionConfig`: `POST /scm-plans-api/scm-product-api/landlineCommissionConfig`
+   - TanStack Query hooks: `useCategoriesQuery`, `useZoneBasedCirclesQuery`, `useSaveCommissionConfigMutation`, `useSaveMultipleCommissionConfigMutation`, `usePostpaidCommissionConfigMutation`, `useLandlineCommissionConfigMutation`.
+2. Created `src/schemas/commission.schema.ts`:
+   - Zod schemas `prepaidFrcSchema`, `prepaidOtfSchema`, `postpaidCommissionSchema`, and `landlineCommissionSchema` with field validation and range checks.
+3. Created `src/features/commissions/CommissionConfigPage.tsx`:
+   - shadcn `Tabs` with tabs for `Prepaid FRC/OTF`, `Postpaid`, and `Landline`.
+   - Sub-selector for Prepaid FRC (single circle via `CircleSelector`, topic `'PrepaidFrc'`) vs Prepaid OTF (zone-scoped via `ZoneSelector` -> `CircleSelector`, topic `'PrepaidOtf'`).
+   - Postpaid form (topic `'Postpaid'`) and Landline form (topic `'Landline'`).
+   - Fully integrated with `useOtpFlow` and `OTPVerificationModal` so mutations only run after OTP verification.
+   - Wrapped page with `PermissionGuard permission='commissionPermissions'`.
+4. Mounted `CommissionConfigPage` at `/commissions` in `src/app/routes.tsx`.
+5. Created unit tests in `src/features/commissions/CommissionConfigPage.test.tsx` (8 tests) verifying PermissionGuard and that each form triggers the exact OTP topic matching the action taken. All 141 tests in 21 test suites passed with zero build errors.
+
+---
+
+### Prompt 12: Commission Search Page & Franchise Add Balance with Row OTP Gating
+
+**User Request:**
+> Build `src/features/commissions/CommissionSearchPage.tsx`: a DataTable of commissions with SearchToolbar filters (circle, category, denomination), fetched via the `fetchCommission` / `fetchPrepaidOTFCommission` / `fetchPostpaidCommission` / `fetchLandlineCommission` endpoints depending on selected type. Row actions: Edit (opens the relevant config form pre-filled, uses the `Modify_[Type]` OTP topics, calls `updateCommissionConfig` / `updatePostpaidCommission` / `updateLandlineCommission` on success) and Delete (`ConfirmationDialog` with `destructive=true`, then calls `deleteCommissionConfig` / `deletePostpaidCommission` / `deleteLandlineCommission`).
+>
+> Build `src/features/commissions/FranchiseAddBalancePage.tsx`: DataTable of pending `franchiseAddBalanceTransactions`, with Approve/Reject row actions — each uses their own OTP topic (`FranchiseAddbalanceApprove` / `FranchiseAddbalanceReject`) before calling the approve/reject endpoints. Write tests for the edit flow triggering the correct Modify_ topic, and the approve/reject flow triggering the correct topic per action.
+
+**Solution:**
+1. Extended `src/api/commission.api.ts`:
+   - Data interfaces: `CommissionItem`, `FranchiseAddBalanceTransaction`, `UpdateCommissionConfigPayload`, `UpdatePostpaidCommissionPayload`, `UpdateLandlineCommissionPayload`, `FranchiseBalanceActionPayload`, `FetchCommissionFilters`.
+   - API endpoints calling:
+     - `fetchCommission`, `fetchPrepaidOTFCommission`, `fetchPostpaidCommission`, `fetchLandlineCommission`
+     - `updateCommissionConfig`, `updatePostpaidCommission`, `updateLandlineCommission`
+     - `deleteCommissionConfig`, `deletePostpaidCommission`, `deleteLandlineCommission`
+     - `getFranchiseAddBalanceTransactions`, `approveFranchiseAddBalance`, `rejectFranchiseAddBalance`
+   - Hooks: `useCommissionsQuery`, `useFranchiseTransactionsQuery`, `useUpdateCommissionMutation`, `useUpdatePostpaidMutation`, `useUpdateLandlineMutation`, `useDeleteCommissionMutation`, `useApproveFranchiseBalanceMutation`, `useRejectFranchiseBalanceMutation`.
+2. Created `src/features/commissions/CommissionSearchPage.tsx`:
+   - Line-bar `Tabs` (`variant="line"`) switching across Prepaid FRC, Prepaid OTF, Postpaid, and Landline.
+   - `SearchToolbar` with search input, Circle dropdown, Category dropdown, and Denomination input.
+   - `DataTable` with columns tailored to each commission type.
+   - Edit dialog pre-filled with row data, triggering OTP modal with topic `Modify_PrepaidFRC`, `Modify_PrepaidOTF`, `Modify_Postpaid`, or `Modify_Landline`, calling respective update mutation only on verified OTP.
+   - Delete action opening `ConfirmationDialog` with `destructive={true}` calling respective delete mutation.
+   - Wrapped in `<PermissionGuard permission="commissionPermissions">`.
+3. Created `src/features/commissions/FranchiseAddBalancePage.tsx`:
+   - `DataTable` of pending franchise balance additions with sequence, MSISDNs, amount, circle, user, and `StatusBadge`.
+   - Approve button triggering OTP modal with topic `FranchiseAddbalanceApprove` before calling `/franchiseAddBalance/approve`.
+   - Reject button triggering confirmation followed by OTP modal with topic `FranchiseAddbalanceReject` before calling `/franchiseAddBalance/reject`.
+   - Wrapped in `<PermissionGuard permission="commissionPermissions">`.
+4. Exported pages in `src/features/commissions/index.ts`, wired `/commissions/search` and `/commissions/franchise-balance` routes in `src/app/routes.tsx`, and added navigation items to `AppLayout.tsx`.
+5. Created comprehensive unit test suites:
+   - `src/features/commissions/CommissionSearchPage.test.tsx` (5 tests): verifies PermissionGuard, directory rendering, Edit flow triggering `Modify_PrepaidFRC` and `Modify_Postpaid` OTP topics, and Delete flow with `ConfirmationDialog`.
+   - `src/features/commissions/FranchiseAddBalancePage.test.tsx` (4 tests): verifies PermissionGuard, transaction table, Approve flow triggering `FranchiseAddbalanceApprove`, and Reject flow triggering `FranchiseAddbalanceReject`.
+---
+
+### Prompt 13: Dealer Management (Multipart FormData Creation, Directory, Profile, & OTP-Gated Actions)
+
+**User Request:**
+> Build `src/api/dealer.api.ts`: dealer creation must use FormData (multipart), not JSON — append a 'dealer' field as a JSON string blob (matching the fields in docs/api-mapping.md's Create Dealer description: firstName, lastName, mobile, dob, address, dealerType, circleId, ssaId, category, aadhaarId, panId, gstNumber, etc.) plus a 'certificate' file field. Also add: fetchDealer, fetchDealerData, updateDealer, dealerStatusCheck, dealerStatusChange, dealerList, resetMpin, changeDealerHierarchy.
+>
+> Build `src/features/dealers/DealerListPage.tsx` (DataTable + SearchToolbar, similar pattern to UserListPage) and `src/features/dealers/CreateDealerForm.tsx` with a proper file upload input (shadcn-compatible, accept image/pdf for certificate) plus the standard fields, OTP-gated with topic 'Dealercreation'. Build `DealerDetailPage.tsx` with: Edit (topic 'Modifydealer'), Status change (topic 'DealerStatus', with ConfirmationDialog), MPIN reset (topic 'DealerMpinreset', with ConfirmationDialog warning it's irreversible), and hierarchy change UI (topic 'DealerHierarchyChange') showing parent/child relationship via srcMsisdn/destMsisdn. Write tests confirming create form submits as FormData (not JSON) with dealer JSON blob and certificate file, and each protected action uses its correct OTP topic.
+
+**Solution:**
+1. Updated `src/api/client.ts`:
+   - Configured `apiClient` to inspect `options?.body instanceof FormData` and conditionally omit default `'Content-Type': 'application/json'`, letting the browser set `multipart/form-data; boundary=...` automatically.
+2. Created `src/api/dealer.api.ts`:
+   - Defined interfaces: `Dealer`, `DealerType`, `DealerCategory`, `CreateDealerPayload`, `UpdateDealerPayload`, `DealerStatusCheckResponse`, `ChangeHierarchyPayload`, `ResetMpinPayload`.
+   - Built API methods:
+     - `createDealer`: constructs `FormData`, appends `'dealer'` string blob and `'certificate'` `File`, posts to `/scm-dealer-api/dealerManagement/createDealer`.
+     - `fetchDealer`: `GET /scm-dealer-api/dealerManagement/fetchDealer?msisdn={msisdn}`.
+     - `fetchDealerData`: `GET /scm-dealer-api/dealerManagement/fetchDealerData?msisdn={msisdn}`.
+     - `updateDealer`: `POST /scm-dealer-api/dealerManagement/modifyDealer`.
+     - `dealerStatusCheck`: `GET /scm-dealer-api/dealerManagement/dealerStatusCheck?msisdn={msisdn}`.
+     - `dealerStatusChange`: `POST /scm-dealer-api/dealerManagement/dealerStatusChange`.
+     - `listDealers`: top-level dealer directory query with fallback mock data when backend pagination endpoint is unprovisioned.
+     - `resetMpin`: `POST /scm-dealer-api/dealerManagement/resetMpin`.
+     - `changeDealerHierarchy`: `POST /scm-dealer-api/dealerManagement/changeDealerHierarchy`.
+   - TanStack Query hooks: `useDealersListQuery`, `useDealerQuery`, `useDealerDataQuery`, `useDealerStatusCheckQuery`, `useCreateDealerMutation`, `useUpdateDealerMutation`, `useChangeDealerStatusMutation`, `useResetMpinMutation`, `useChangeDealerHierarchyMutation`.
+3. Created `src/schemas/dealer.schema.ts`:
+   - Zod validation schemas for `createDealerSchema`, `updateDealerSchema`, and `changeHierarchySchema`.
+4. Created `src/features/dealers/CreateDealerForm.tsx`:
+   - FormSections: 'Basic Information', 'Channel Classification', 'Geographic Location' (cascading `ZoneSelector` -> `CircleSelector` -> `SSASelector`), 'Identity & Tax Credentials' (Aadhaar, PAN, GSTIN), and 'Verification Document' file dropzone supporting image and PDF upload with size/type validation.
+   - OTP modal triggered on submit with `topic: 'Dealercreation'`; payload is strictly submitted as `FormData` only upon OTP verification.
+5. Created `src/features/dealers/DealerListPage.tsx`:
+   - `DataTable` + `SearchToolbar` filtering by status, dealer tier, circle, and search text.
+   - Action buttons for viewing profile and creating dealers via modal dialog.
+   - Secured under `<PermissionGuard permission="dealerPermissions">`.
+6. Created `src/features/dealers/DealerDetailPage.tsx`:
+   - Read-only profile view with telemetry, hierarchy overview card (`srcMsisdn` -> `destMsisdn`), and action toolbar.
+   - Four OTP-gated workflows:
+     - **Edit Dealer**: pre-filled dialog, OTP topic `'Modifydealer'`, calls `updateDealer`.
+     - **Status Change**: `ConfirmationDialog` prompt, OTP topic `'DealerStatus'`, calls `changeDealerStatus`.
+     - **Reset MPIN**: `ConfirmationDialog` with `destructive={true}` warning action is irreversible, OTP topic `'DealerMpinreset'`, calls `resetMpin`.
+     - **Hierarchy Transfer**: modal with source/destination MSISDN inputs, OTP topic `'DealerHierarchyChange'`, calls `changeDealerHierarchy`.
+   - Secured under `<PermissionGuard permission="dealerPermissions">`.
+7. Created comprehensive unit tests:
+   - `src/features/dealers/CreateDealerForm.test.tsx` (3 tests): verifies field validation, file attachment, and `FormData` submission with topic `'Dealercreation'`.
+   - `src/features/dealers/DealerDetailPage.test.tsx` (6 tests): verifies PermissionGuard, profile rendering, and all 4 OTP topics (`Modifydealer`, `DealerStatus`, `DealerMpinreset`, `DealerHierarchyChange`).
+8. Full verification: all 25 test suites (159/159 tests) passed and production build succeeded.

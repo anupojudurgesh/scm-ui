@@ -85,3 +85,13 @@ export function useSSAsByCircleQuery(
     staleTime: 1000 * 60 * 30,
   })
 }
+
+export function useAllCirclesQuery(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: masterDataKeys.allCircles(),
+    queryFn: () => masterDataApi.getAllCircles(),
+    staleTime: 1000 * 60 * 30,
+    ...options,
+  })
+}
+
