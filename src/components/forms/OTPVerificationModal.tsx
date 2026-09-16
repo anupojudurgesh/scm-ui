@@ -198,7 +198,7 @@ export function OTPVerificationModal({
                 flow.setOtpCode(val)
               }}
               disabled={flow.isValidating || flow.isSuccess}
-              className="text-center font-mono text-lg tracking-[0.4em] h-11"
+              className="text-center font-sans text-lg tracking-[0.4em] h-11"
               autoFocus
             />
           </div>

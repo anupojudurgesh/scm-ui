@@ -76,7 +76,7 @@ export function ApiError({
             </h4>
             {statusCode && (
               <span
-                className="rounded bg-red-200/60 px-1.5 py-0.5 font-mono text-[10px] font-medium text-red-800"
+                className="rounded bg-red-200/60 px-1.5 py-0.5 font-sans text-[10px] font-semibold text-red-800"
                 data-testid="api-error-status"
               >
                 {statusCode}

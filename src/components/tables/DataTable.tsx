@@ -234,8 +234,10 @@ export function DataTable<T>({
                     data-testid="data-table-row"
                     onClick={() => onRowClick?.(row, rowIndex)}
                     className={cn(
-                      'transition-colors',
-                      isClickable && 'cursor-pointer hover:bg-slate-50/80 active:bg-slate-100/70'
+                      'transition-colors duration-150 ease-out',
+                      isClickable
+                        ? 'cursor-pointer hover:bg-slate-50/80 active:bg-slate-100/70'
+                        : 'hover:bg-transparent'
                     )}
                   >
                     {columns.map((col) => (
