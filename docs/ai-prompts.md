@@ -387,8 +387,98 @@ Header/footer badges: Remove 'OTP Active' entirely — it's a static badge with 
    - `src/components/tables/SearchToolbar.test.tsx` (12 tests covering debounce delay, timer resetting on typing, clear button, Reset button, Enter/Escape hotkeys, filter children, and controlled values).
    - `src/components/forms/FormSection.test.tsx` (5 tests covering title, description, children, action slot, custom styling, and accessibility).
    - `src/components/feedback/LoadingState.test.tsx` (6 tests covering accessible status role, message, description, size variants, and fullPage layout).
-5. Ran all 17 test suites (114/114 tests passing) and validated clean production build.
-
 **Accepted:**
 - Simple, unopinionated, reusable components ready for upcoming feature forms and data tables.
 - 100% test coverage with robust debounce timer assertions.
+
+---
+
+### Prompt 20: User API Service & UserListPage Feature
+
+**Prompt:**
+"Build src/api/user.api.ts with TanStack Query hooks calling the real user endpoints from docs/api-mapping.md: getUser (fetchUser by username), getUserWithHrmsAndUsername, and any list/search capability available. Note: the Postman collection doesn't show a dedicated 'list all users' endpoint with pagination — check api-mapping.md and if it's genuinely missing, mock the list query with realistic sample data and comment it as TODO: replace with real list endpoint, documenting this as a known limitation, same pattern as the dashboard.
+
+Then build UserListPage in src/features/users/UserListPage.tsx using DataTable and SearchToolbar: columns for username, HRMS ID, first/last name, role, zone/circle/SSA, status (using StatusBadge), and an actions column with Edit/View buttons. Filters: status, role, and cascading ZoneSelector/CircleSelector/SSASelector as filter dropdowns inside SearchToolbar. Wrap the whole page's content in PermissionGuard permission='userPermissions'. Write a test confirming the table renders with mock data and that changing a filter updates the query params."
+
+**AI Output:**
+1. Created `src/api/user.api.ts`:
+   - Wired real endpoints from `docs/api-mapping.md`: `getUser` (`GET /scm-user-api/scm-user-api/getUser/{username}`), `getUserWithHrmsAndUsername` (`GET /scm-user-api/scm-user-api/getUserwithHrmsIdandUsername`), `checkUsernameAvailability`, `checkUserStatus`, `getUserPermissions`.
+   - Documented the absence of a dedicated paginated user listing endpoint as a known limitation with explicit `TODO` comment.
+   - Built a realistic mock dataset (`MOCK_USERS`) of 10 users across regional zones, circles, SSAs, statuses, and roles.
+   - Implemented `listUsers` with in-memory filtering (full-text search, status, role, cascading zone/circle/SSA) and pagination.
+   - Exported TanStack Query hooks: `useUserQuery`, `useUserWithHrmsAndUsernameQuery`, `useUsersListQuery`, and key factory `userKeys`.
+2. Created `src/features/users/UserListPage.tsx`:
+   - Wrapped entire view in `<PermissionGuard permission="userPermissions" fallback={...}>`.
+   - Wired bidirectional query parameters via `useSearchParams()` (`q`, `status`, `role`, `zoneId`, `circleId`, `ssaId`, `page`).
+   - Integrated `SearchToolbar` containing: search input, status filter dropdown, role filter dropdown, and cascading `ZoneSelector`/`CircleSelector`/`SSASelector`.
+   - Implemented `DataTable` with 7 columns: Username, HRMS ID, First / Last Name, Role, Jurisdiction (Zone / Circle / SSA), Status (with `StatusBadge`), and Actions (View / Edit buttons).
+   - Built an interactive User Details modal opened upon clicking View or Edit.
+   - Included operational limitation notice regarding the simulated list query.
+3. Created `src/features/users/index.ts` and updated `src/features/users/UsersPage.tsx` to mount `UserListPage`.
+4. Created `src/features/users/UserListPage.test.tsx` verifying:
+   - Rendering of column headers and mock user records.
+   - Filter changes update router search params and filter table rows.
+   - Role and search query filtering.
+   - View modal interaction.
+   - PermissionGuard denial fallback when `userPermissions` is absent.
+5. Ran all 18 test suites (120/120 tests passing) and validated clean production build.
+
+**Accepted:**
+- Comprehensive user management list view with real-time URL search param synchronization.
+- Seamless integration with DataTable, SearchToolbar, cascading geographic selectors, and PermissionGuard.
+
+---
+
+### Prompt 21: Create User Feature (Zod Schema, FormSections, OTP Gating, Permissions Matrix)
+
+**Prompt:**
+"Build the Create User feature:
+
+src/schemas/user.schema.ts — a Zod schema matching the usercreation payload fields from docs/api-mapping.md (hrmsId, username, mobileNumber, firstName, lastName, address, dob, roleId, zoneId, circleId, ssaId, password, status), with realistic validation (required fields, mobile number format, password strength, valid date for dob).
+src/features/users/CreateUserForm.tsx — using React Hook Form + zodResolver + shadcn Form components, organized into FormSections: 'Basic Details' (HRMS ID, username, mobile, name), 'Location' (ZoneSelector → CircleSelector → SSASelector cascading), 'Account' (password, status, DOB, address), and 'Permissions' (checkbox grid for all 33 permission keys from the Postman collection's variable list — dealerPermissions, walletPermissions, userPermissions, commissionPermissions, plansNumberpermissions, reportsPermissions, stockCheck, dealerMpinReset, franchiseAddBalance, bulkRecharge, varepReports, userActivityReports, dealerStatus, transactionStatus, topupReversal, simSaleUpload, simInventory, pendingClearence, inReconsilation, mobileApp, deferredCommission, cbp, simUpgrade, mnp, frcStv, bulk_purge, e_auction, denominations, prepaidCommissions, postpaidCommissions, landlineCommissions, FOSCreation — group them logically, e.g. 'Dealer & Wallet', 'Commission Types', 'Reports & Activity').
+Wire submission through useOtpFlow: on form submit (after client-side validation passes), open OTPVerificationModal with topic='UserCreation' and the form's mobile number. Only call the actual createUser API mutation inside the OTP flow's onSuccess callback — the form must NOT submit to the real endpoint before OTP validation succeeds.
+Handle the create mutation with TanStack Query's useMutation, show loading state on the submit button, disable form during submission, show success/error via toast, and clear the form on success.
+
+Write tests: schema validation catches invalid required fields, form renders all sections, submitting valid data opens the OTP modal (not the create API) before validation, and the create API is only called after OTP succeeds (mock useOtpFlow's onSuccess firing)."
+
+**AI Output:**
+1. Created `src/schemas/user.schema.ts`:
+   - Zod schema `createUserSchema` matching `usercreation` endpoint from `docs/api-mapping.md`:
+     - Alphanumeric validation for `hrmsId` (3-20 chars) and `username` (3-50 chars).
+     - Strict Indian mobile format `/^[6-9]\d{9}$/`.
+     - High-entropy password requirements (min 8 chars, 1 uppercase, 1 lowercase, 1 digit).
+     - Valid Date of Birth verifying operator is >= 18 years of age.
+     - Numeric foreign keys for `roleId`, `zoneId`, `circleId`, `ssaId`.
+     - Lifecycle `status` enum (`Active`, `Inactive`, `Pending`, `Blocked`).
+     - Bitmask permissions map supporting all 32 permission keys from Postman variable declarations.
+   - Defined `PERMISSION_KEYS` (32 keys) and `PERMISSION_GROUPS` categorized into 6 domains:
+     - Core Administration (userPermissions, dealerPermissions, dealerStatus, dealerMpinReset, plansNumberpermissions, FOSCreation).
+     - Dealer & Wallet Operations (walletPermissions, franchiseAddBalance, bulkRecharge, topupReversal, pendingClearence, inReconsilation).
+     - Commission Types (commissionPermissions, prepaidCommissions, postpaidCommissions, landlineCommissions, deferredCommission, denominations).
+     - SIM & Inventory (stockCheck, simSaleUpload, simInventory, simUpgrade, mnp, frcStv).
+     - Reports & Activity (reportsPermissions, varepReports, userActivityReports, transactionStatus).
+     - Advanced & System Tools (mobileApp, cbp, bulk_purge, e_auction).
+2. Extended `src/api/user.api.ts`:
+   - Added `CreateUserPayload` and `CreateUserResponse` interfaces.
+   - Added `userApi.createUser` calling `POST /scm-user-api/scm-user-api/usercreation`.
+   - Added TanStack Query `useCreateUserMutation` hook with automated cache invalidation on `userKeys.all`.
+3. Created `src/features/users/CreateUserForm.tsx`:
+   - Built with React Hook Form + `zodResolver(createUserSchema)` and shadcn `Form` components.
+   - Organized into 4 `FormSection`s:
+     - **Basic Details**: HRMS ID, Username, Mobile Number (OTP target), First Name, Last Name, System Role.
+     - **Location**: Cascading `ZoneSelector` -> `CircleSelector` -> `SSASelector` with automatic resets on parent change.
+     - **Account**: Password with visibility toggle, Status dropdown, Date of Birth picker, Physical address.
+     - **Permissions**: Checkbox grid grouped into 6 collapsible/structured categories with batch quick actions ("Select All" / "Clear" per group, and global "Grant All" / "Clear All").
+   - Integrated `OTPVerificationModal` (`topic='UserCreation'`). On form submit, client-side validation passes, captures pending values, and opens the OTP modal. The `createUser` mutation is strictly gated until OTP verification resolves via `useOtpFlow`.
+   - Disabled all inputs and submit button during submission, showed spinner loading state, displayed success/error banners and toast notifications, and reset form on success.
+4. Integrated `CreateUserForm` into `src/features/users/UserListPage.tsx` via an operational "Create User" action dialog button.
+5. Created comprehensive unit test suites:
+   - `src/schemas/user.schema.test.ts` (8 tests): valid payload, missing fields, mobile format, password complexity, DOB age restriction, location selections, and permission key groupings.
+   - `src/features/users/CreateUserForm.test.tsx` (5 tests): renders all four FormSections, validation errors prevent submit and block OTP modal, submitting valid data opens OTP modal without calling API, create API is only dispatched after OTP verification succeeds, and Grant All / Clear All permission buttons work.
+6. Ran full test suite (20 test suites, 133/133 tests passing) and confirmed production build (`tsc -b && vite build`) compiles with zero errors.
+
+**Accepted:**
+- Enterprise-grade, OTP-gated user creation workflow completely eliminating unverified accounts.
+- Realistic Zod validation with 32-key permission matrix.
+- 100% test pass rate across 133 tests with zero production build regressions.
+

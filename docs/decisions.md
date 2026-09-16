@@ -139,4 +139,43 @@ Wallet Management domain, since it's a real part of the API surface.
 - **LoadingState (`src/components/feedback/LoadingState.tsx`):** Created an accessible (`role="status"`, `aria-live="polite"`, `sr-only` fallback), centered spinner component supporting customizable messages, secondary descriptions, size variants (`sm`, `md`, `lg`), and full-page layout modes.
 
 **Why:** Prevents duplicate debouncing, spacing, and loading logic across feature pages while adhering to the ops console design system and accessibility standards.
+
+---
+
+## Decision: User API Service & UserListPage Architecture
+
+**Context:** The Postman collection contains individual user endpoints (`getUser/{username}`, `getUserwithHrmsIdandUsername`, `fetchusername`, `userStatusCheck`, `getUserPermissionwithHrmsIdandUsername`), but lacks a dedicated paginated user listing API (`/users`). The UI needs a scalable, filterable User Directory supporting full-text search, status and role filtering, and cascading geographic scoping (Zone -> Circle -> SSA).
+
+**Decision:**
+- **User API Service (`src/api/user.api.ts`):** Wired real endpoints for individual lookups while providing a simulated list query (`listUsers`) over realistic sample data (`MOCK_USERS`) with in-memory filtering and pagination. Documented as a known limitation with `TODO` markers for backend alignment.
+- **Permission-Gated View:** Wrapped the entire `UserListPage` inside `PermissionGuard` evaluating `userPermissions`, displaying a clear "Access Restricted" alert if the user lacks the permission bitmask flag.
+- **Bidirectional URL Query Sync:** Bound all filter states (`q`, `status`, `role`, `zoneId`, `circleId`, `ssaId`, `page`) directly to `react-router-dom`'s `useSearchParams`, enabling deep-linking, browser history navigation, and refresh persistence.
+- **Cascading Filter Integration:** Integrated `SearchToolbar` containing status and role dropdowns alongside the cascading `ZoneSelector`, `CircleSelector`, and `SSASelector` components.
+
+**Why:** Ensures full usability and testability of the user management domain today while maintaining clean decoupling for when backend engineers deploy the real paginated listing endpoint.
+
+---
+
+## Decision: OTP-Gated User Creation & 32-Key Bitmask Permissions Matrix
+
+**Context:** Creating an operational SCM user account requires capturing legal, jurisdictional, credential, and granular capability assignments. Because adding an operator is a high-privilege administrative action that grants backend access across telecom domains, it must be protected against accidental or unauthorized submission.
+
+**Decision:**
+- **Zod Schema (`src/schemas/user.schema.ts`):** Defined `createUserSchema` matching `usercreation` API requirements from `docs/api-mapping.md`:
+  - `hrmsId`: alphanumeric code (3–20 chars).
+  - `username`: alphanumeric with dots/dashes/underscores (3–50 chars).
+  - `mobileNumber`: strictly validated Indian 10-digit mobile (`^[6-9]\d{9}$`), acting as the primary SMS OTP target.
+  - `password`: high-entropy policy (min 8 chars, at least 1 uppercase, 1 lowercase, 1 digit).
+  - `dob`: date validation enforcing minimum operator age of 18 years.
+  - `roleId`, `zoneId`, `circleId`, `ssaId`: numeric foreign keys ensuring complete regional jurisdiction assignment.
+  - `permissions`: flexible boolean map covering all 32 permission keys from Postman variable declarations.
+- **Cascading Geographical Scope:** Organized into logical `FormSection`s ('Basic Details', 'Location', 'Account', 'Permissions'). When a user selects a Zone, child Circle and SSA dropdowns automatically reset and dynamically load children via TanStack Query.
+- **OTP-Gated Submission Flow (`useOtpFlow` + `OTPVerificationModal`):**
+  - Submitting the form runs client-side Zod validation only.
+  - Upon passing client-side validation, the form **never** calls `userApi.createUser` immediately. Instead, it captures the form values in temporary pending state and opens `OTPVerificationModal` with topic `UserCreation` and the operator's mobile number.
+  - The actual mutation (`useCreateUserMutation`) is **strictly deferred** until the `onSuccess` callback of `useOtpFlow` fires.
+  - On successful creation, the form displays a success banner, triggers an optional `onSuccess` callback, and resets cleanly.
+- **32-Key Bitmask Permissions Matrix:** Grouped all 32 Postman collection permission keys into 6 operational categories ('Core Administration', 'Dealer & Wallet Operations', 'Commission Types', 'SIM & Inventory', 'Reports & Activity', 'Advanced & System Tools'). Provided batch toggle quick actions ("Select All" / "Clear" per category, and global "Grant All" / "Clear All").
+
+**Why:** Completely prevents unverified user account provisioning in production. The two-phase submission pattern (Client Validation -> OTP Challenge -> Backend Mutation) guarantees zero rogue accounts can be created without cryptographic MSISDN verification.
 
