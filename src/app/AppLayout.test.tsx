@@ -116,4 +116,66 @@ describe('App Routing & Layout Navigation', () => {
     expect(screen.getByTestId('dealers-page')).toBeInTheDocument()
     expect(screen.getByText('Dealer Management')).toBeInTheDocument()
   })
+
+  it('toggles expandable Commissions sub-menu and reveals sub-routes', async () => {
+    const user = (await import('@testing-library/user-event')).default.setup()
+
+    useAuthStore.getState().setAuth(
+      {
+        userId: 101,
+        username: 'admin_user',
+        hrmsId: 'HRMS101',
+        roleId: 1,
+        roleName: 'System Administrator',
+      },
+      {
+        commissionPermissions: 1,
+      }
+    )
+
+    renderApp('/dashboard')
+
+    // Commissions parent trigger exists
+    const commissionsTrigger = screen.getByTestId('nav-commissions')
+    expect(commissionsTrigger).toBeInTheDocument()
+
+    // Sub-items should not be visible initially when on /dashboard
+    expect(screen.queryByTestId('nav-commissions-config')).not.toBeInTheDocument()
+
+    // Click to expand
+    await user.click(commissionsTrigger)
+    expect(screen.getByTestId('nav-commissions-config')).toBeInTheDocument()
+    expect(screen.getByTestId('nav-commissions-search')).toBeInTheDocument()
+    expect(screen.getByTestId('nav-franchise-balance')).toBeInTheDocument()
+
+    // Click to collapse
+    await user.click(commissionsTrigger)
+    expect(screen.queryByTestId('nav-commissions-config')).not.toBeInTheDocument()
+  })
+
+  it('signs out operator and clears authentication state when clicking sign out button', async () => {
+    const user = (await import('@testing-library/user-event')).default.setup()
+
+    useAuthStore.getState().setAuth(
+      {
+        userId: 101,
+        username: 'admin_user',
+        hrmsId: 'HRMS101',
+        roleId: 1,
+        roleName: 'System Administrator',
+      },
+      {
+        userPermissions: 1,
+      }
+    )
+
+    renderApp('/dashboard')
+
+    const signOutBtn = screen.getByTestId('sign-out-btn')
+    expect(signOutBtn).toBeInTheDocument()
+
+    await user.click(signOutBtn)
+    expect(useAuthStore.getState().isAuthenticated).toBe(false)
+    expect(useAuthStore.getState().user).toBeNull()
+  })
 })

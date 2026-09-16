@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate, type RouteObject } from 'react-router-dom'
 import { AppLayout } from './AppLayout'
+import { LoginPage } from '@/features/auth'
 import { DashboardPage } from '@/features/dashboard'
 import { UsersPage } from '@/features/users/UsersPage'
 import { DealerListPage, DealerDetailPage } from '@/features/dealers'
@@ -16,6 +17,10 @@ import {
 } from '@/features/plans'
 
 export const routesConfig: RouteObject[] = [
+  {
+    path: '/login',
+    element: <LoginPage />,
+  },
   {
     path: '/',
     element: <AppLayout />,
@@ -79,6 +84,7 @@ export const routesConfig: RouteObject[] = [
 export function AppRoutes() {
   return (
     <Routes>
+      <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<AppLayout />}>
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
@@ -97,5 +103,3 @@ export function AppRoutes() {
     </Routes>
   )
 }
-
-

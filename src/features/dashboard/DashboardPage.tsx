@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ApiError } from '@/components/feedback/ApiError'
+import { CountUpNumber } from '@/components/feedback/CountUpNumber'
 import { dashboardApi, type ActivityItem } from '@/api/dashboard.api'
 import { AlertTriangle, Activity } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -26,7 +27,7 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto" data-testid="dashboard-page">
-      {/* Page Header: High-contrast Manrope heading with single global telemetry status */}
+      {/* Page Header: High-contrast Manrope heading with quiet inline telemetry metadata */}
       <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 border-b border-slate-200/80 pb-4">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 font-heading">
@@ -37,9 +38,8 @@ export function DashboardPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-[11px] text-slate-500">
-          <span className="h-2 w-2 rounded-full bg-cyan-600" />
-          <span>Cluster node: scm-db-primary</span>
+        <div className="text-xs text-slate-400 font-medium">
+          Master node: scm-db-primary
         </div>
       </div>
 
@@ -86,11 +86,15 @@ export function DashboardPage() {
                     data-testid="kpi-skeleton-pendingActions"
                   />
                 ) : (
-                  <div
-                    className="text-3xl sm:text-4xl font-extrabold text-amber-950 tracking-tight font-sans"
-                    data-testid="kpi-value-pendingActions"
-                  >
-                    {kpis ? kpis.pendingActions.toLocaleString() : '—'}
+                  <div className="text-3xl sm:text-4xl font-extrabold text-amber-950 tracking-tight font-sans">
+                    {kpis ? (
+                      <CountUpNumber
+                        value={kpis.pendingActions}
+                        testId="kpi-value-pendingActions"
+                      />
+                    ) : (
+                      '—'
+                    )}
                   </div>
                 )}
               </div>
@@ -124,11 +128,11 @@ export function DashboardPage() {
                     {isKpisLoading ? (
                       <Skeleton className="h-4 w-10 rounded-xs" data-testid="kpi-skeleton-activeUsers" />
                     ) : (
-                      <span
-                        className="text-xs font-semibold text-slate-800 font-sans"
-                        data-testid="kpi-value-activeUsers"
-                      >
-                        {kpis?.activeUsers.toLocaleString()}
+                      <span className="text-xs font-semibold text-slate-800 font-sans">
+                        <CountUpNumber
+                          value={kpis?.activeUsers ?? 0}
+                          testId="kpi-value-activeUsers"
+                        />
                       </span>
                     )}
                   </div>
@@ -138,11 +142,11 @@ export function DashboardPage() {
                   {isKpisLoading ? (
                     <Skeleton className="h-8 w-24 rounded-md" data-testid="kpi-skeleton-totalUsers" />
                   ) : (
-                    <div
-                      className="text-3xl font-extrabold text-slate-900 tracking-tight font-sans"
-                      data-testid="kpi-value-totalUsers"
-                    >
-                      {kpis?.totalUsers.toLocaleString()}
+                    <div className="text-3xl font-extrabold text-slate-900 tracking-tight font-sans">
+                      <CountUpNumber
+                        value={kpis?.totalUsers ?? 0}
+                        testId="kpi-value-totalUsers"
+                      />
                     </div>
                   )}
                 </div>
@@ -175,11 +179,11 @@ export function DashboardPage() {
                     {isKpisLoading ? (
                       <Skeleton className="h-4 w-10 rounded-xs" data-testid="kpi-skeleton-activeDealers" />
                     ) : (
-                      <span
-                        className="text-xs font-semibold text-slate-800 font-sans"
-                        data-testid="kpi-value-activeDealers"
-                      >
-                        {kpis?.activeDealers.toLocaleString()}
+                      <span className="text-xs font-semibold text-slate-800 font-sans">
+                        <CountUpNumber
+                          value={kpis?.activeDealers ?? 0}
+                          testId="kpi-value-activeDealers"
+                        />
                       </span>
                     )}
                   </div>
@@ -189,11 +193,11 @@ export function DashboardPage() {
                   {isKpisLoading ? (
                     <Skeleton className="h-8 w-24 rounded-md" data-testid="kpi-skeleton-totalDealers" />
                   ) : (
-                    <div
-                      className="text-3xl font-extrabold text-slate-900 tracking-tight font-sans"
-                      data-testid="kpi-value-totalDealers"
-                    >
-                      {kpis?.totalDealers.toLocaleString()}
+                    <div className="text-3xl font-extrabold text-slate-900 tracking-tight font-sans">
+                      <CountUpNumber
+                        value={kpis?.totalDealers ?? 0}
+                        testId="kpi-value-totalDealers"
+                      />
                     </div>
                   )}
                 </div>
@@ -231,11 +235,11 @@ export function DashboardPage() {
             {isKpisLoading ? (
               <Skeleton className="h-7 w-12 rounded-md" data-testid="kpi-skeleton-commissionConfigurations" />
             ) : (
-              <span
-                className="text-2xl font-bold text-slate-900 font-sans"
-                data-testid="kpi-value-commissionConfigurations"
-              >
-                {kpis?.commissionConfigurations}
+              <span className="text-2xl font-bold text-slate-900 font-sans">
+                <CountUpNumber
+                  value={kpis?.commissionConfigurations ?? 0}
+                  testId="kpi-value-commissionConfigurations"
+                />
               </span>
             )}
           </div>
@@ -260,11 +264,11 @@ export function DashboardPage() {
             {isKpisLoading ? (
               <Skeleton className="h-7 w-12 rounded-md" data-testid="kpi-skeleton-plans" />
             ) : (
-              <span
-                className="text-2xl font-bold text-slate-900 font-sans"
-                data-testid="kpi-value-plans"
-              >
-                {kpis?.plans}
+              <span className="text-2xl font-bold text-slate-900 font-sans">
+                <CountUpNumber
+                  value={kpis?.plans ?? 0}
+                  testId="kpi-value-plans"
+                />
               </span>
             )}
           </div>
