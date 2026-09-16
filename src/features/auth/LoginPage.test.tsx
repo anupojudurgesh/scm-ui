@@ -108,7 +108,28 @@ describe('LoginPage Component', () => {
     await waitFor(() => {
       expect(useAuthStore.getState().isAuthenticated).toBe(true)
       expect(useAuthStore.getState().user?.username).toBe('admin_dev')
-      expect(mockNavigate).toHaveBeenCalledWith('/dashboard')
+      // navigate is now called with { replace: true } to avoid history stacking
+      expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true })
+    })
+  })
+
+  it('honours ?redirect param: navigates to /dealers (not /dashboard) when redirect param is set', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <MemoryRouter initialEntries={['/login?redirect=%2Fdealers']}>
+        <LoginPage />
+      </MemoryRouter>
+    )
+
+    await user.type(screen.getByTestId('input-username'), 'admin_dev')
+    await user.type(screen.getByTestId('input-password'), 'Admin@12345')
+    await user.click(screen.getByTestId('submit-login'))
+
+    await waitFor(() => {
+      expect(useAuthStore.getState().isAuthenticated).toBe(true)
+      // navigate should be called with the decoded redirect path, not /dashboard
+      expect(mockNavigate).toHaveBeenCalledWith('/dealers', { replace: true })
     })
   })
 })
