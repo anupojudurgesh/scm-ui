@@ -593,3 +593,47 @@ Write tests: schema validation catches invalid required fields, form renders all
    - `src/features/dealers/CreateDealerForm.test.tsx` (3 tests): verifies field validation, file attachment, and `FormData` submission with topic `'Dealercreation'`.
    - `src/features/dealers/DealerDetailPage.test.tsx` (6 tests): verifies PermissionGuard, profile rendering, and all 4 OTP topics (`Modifydealer`, `DealerStatus`, `DealerMpinreset`, `DealerHierarchyChange`).
 8. Full verification: all 25 test suites (159/159 tests) passed and production build succeeded.
+
+---
+
+### Prompt 14: Product Plans, Denominations, MNP Routing, and Number Series
+
+**User Request:**
+> Build `src/api/plan.api.ts` covering getplans, addplan, updateplan, deleteplan, saveDenomination, findMnpData/savemnp/modifyMnpData/deleteMnp, and getnumberseries/addnumberseries/saveNumberSeries/editnumberseries/purgenumberseries, matching docs/api-mapping.md.
+>
+> Build `src/features/plans/PlanListPage.tsx` (DataTable + SearchToolbar) and a PlanForm for add/edit (OTP topics: 'Addplan' for create, appropriate modify topic for edit) with fields from the addplan payload (operator, denomination, talkvalue, country, dates, type, description, circle, validity). Build a simpler `DenominationConfigPage.tsx` (topic 'Denominationconfiguration'), `MnpConfigPage.tsx` (topics 'ADD MNP' / 'ModifyMnp' / 'DeleteMnp'), and `NumberSeriesPage.tsx` (topics 'AddnumberSeries' / 'ModfifynumberSeries' / 'DeleteNumberseries') — these three can share a simpler layout pattern (a DataTable plus a compact add/edit form) since they're lower-complexity than Plans. Write basic tests for the plan CRUD flow and OTP topic correctness for at least MNP add.
+
+**Solution:**
+1. Created `src/api/plan.api.ts`:
+   - Defined TypeScript data models for `ProductPlan`, `Denomination`, `MnpRecord`, and `NumberSeries`.
+   - Built API methods & TanStack Query hooks:
+     - Plans: `fetchPlans` (`POST /scm-plans-api/scm-product-api/getplans`), `addPlan` (`POST /scm-plans-api/scm-product-api/addplan`), `updatePlan` (`POST /scm-plans-api/scm-product-api/updateplan`), `deletePlan` (`POST /scm-plans-api/scm-product-api/deleteplan`). Hooks: `usePlansQuery`, `useAddPlanMutation`, `useUpdatePlanMutation`, `useDeletePlanMutation`.
+     - Denominations: `saveDenomination` (`POST /scm-plans-api/scm-product-api/saveDenomination`), `saveMultipleDenominations` (`POST /scm-plans-api/scm-product-api/saveMultipleDenominations`), `fetchRechargePlan` (`POST /scm-plans-api/scm-product-api/fetchRechargePlan`), `listDenominations`. Hooks: `useDenominationsQuery`, `useSaveDenominationMutation`.
+     - MNP Routing: `findMnpData` (`POST /scm-db-api/masterdata-db-api/findMnpData`), `saveMnp` (`POST /scm-db-api/masterdata-db-api/savemnp`), `modifyMnpData` (`POST /scm-db-api/masterdata-db-api/modifyMnpData`), `deleteMnp` (`POST /scm-db-api/masterdata-db-api/deleteMnp`), `listMnpRecords`. Hooks: `useMnpListQuery`, `useSaveMnpMutation`, `useModifyMnpMutation`, `useDeleteMnpMutation`.
+     - Number Series: `getNumberSeries` (`POST /scm-db-api/masterdata-db-api/getnumberseries`), `addNumberSeries` (`POST /scm-db-api/masterdata-db-api/addnumberseries`), `saveNumberSeries` (`POST /scm-db-api/masterdata-db-api/saveNumberSeries`), `editNumberSeries` (`POST /scm-db-api/masterdata-db-api/editnumberseries`), `purgeNumberSeries` (`POST /scm-db-api/masterdata-db-api/purgenumberseries`), `listNumberSeries`. Hooks: `useNumberSeriesListQuery`, `useAddNumberSeriesMutation`, `useEditNumberSeriesMutation`, `usePurgeNumberSeriesMutation`.
+2. Created `src/schemas/plan.schema.ts`:
+   - Zod validation schemas for `planSchema`, `denominationSchema`, `mnpSchema`, and `numberSeriesSchema`.
+3. Created `src/features/plans/PlansNavigation.tsx`:
+   - Line-bar style navigation bar linking `Product Plans` (`/plans`), `Denomination Matrix` (`/plans/denominations`), `MNP Routing` (`/plans/mnp`), and `Number Series` (`/plans/number-series`).
+4. Created `src/features/plans/PlanForm.tsx`:
+   - Multi-section form partitioned into 'Plan Specification', 'Commercial Parameters', and 'Regional & Validity Settings'.
+5. Created `src/features/plans/PlanListPage.tsx`:
+   - `DataTable` + `SearchToolbar` filtering by Circle, Plan Type, and search query.
+   - Add/Edit modal dialogs with OTP verification using topics `'Addplan'` and `'ModifyPlan'`.
+   - Delete flow with `ConfirmationDialog` before calling `deletePlan`.
+   - Gated under `<PermissionGuard permission="plansNumberpermissions">`.
+6. Created `src/features/plans/DenominationConfigPage.tsx`:
+   - Matrix catalog of denominations with Circle filter and Add modal gated by OTP topic `'Denominationconfiguration'`.
+   - Gated under `<PermissionGuard permission="plansNumberpermissions">`.
+7. Created `src/features/plans/MnpConfigPage.tsx`:
+   - Porting directory with Circle filter, Add modal gated by exact OTP topic `'ADD MNP'`, Edit modal gated by `'ModifyMnp'`, and Delete flow gated by `'DeleteMnp'`.
+   - Gated under `<PermissionGuard permission="plansNumberpermissions">`.
+8. Created `src/features/plans/NumberSeriesPage.tsx`:
+   - Intelligent Network (IN) series directory with Circle filter, Add modal gated by `'AddnumberSeries'`, Edit modal gated by exact topic `'ModfifynumberSeries'`, and Purge flow gated by `'DeleteNumberseries'`.
+   - Gated under `<PermissionGuard permission="plansNumberpermissions">`.
+9. Exported all components in `src/features/plans/index.ts` and configured routes in `src/app/routes.tsx`.
+10. Added 3 comprehensive test suites:
+    - `PlanListPage.test.tsx` (6 tests): verifies PermissionGuard, catalog rendering, search filter, Add Plan with topic `'Addplan'`, Edit Plan with topic `'ModifyPlan'`, and Delete Plan with ConfirmationDialog.
+    - `MnpConfigPage.test.tsx` (5 tests): verifies PermissionGuard, table rendering, Add MNP with exact topic `'ADD MNP'`, Edit MNP with `'ModifyMnp'`, and Delete MNP with `'DeleteMnp'`.
+    - `DenominationAndNumberSeries.test.tsx` (4 tests): verifies Denomination Add with topic `'Denominationconfiguration'`, Number Series Add with `'AddnumberSeries'`, Edit with exact topic `'ModfifynumberSeries'`, and Purge with `'DeleteNumberseries'`.
+

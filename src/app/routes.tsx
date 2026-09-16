@@ -8,7 +8,12 @@ import {
   CommissionSearchPage,
   FranchiseAddBalancePage,
 } from '@/features/commissions'
-import { PlansPage } from '@/features/plans/PlansPage'
+import {
+  PlanListPage,
+  DenominationConfigPage,
+  MnpConfigPage,
+  NumberSeriesPage,
+} from '@/features/plans'
 
 export const routesConfig: RouteObject[] = [
   {
@@ -49,7 +54,19 @@ export const routesConfig: RouteObject[] = [
       },
       {
         path: 'plans',
-        element: <PlansPage />,
+        element: <PlanListPage />,
+      },
+      {
+        path: 'plans/denominations',
+        element: <DenominationConfigPage />,
+      },
+      {
+        path: 'plans/mnp',
+        element: <MnpConfigPage />,
+      },
+      {
+        path: 'plans/number-series',
+        element: <NumberSeriesPage />,
       },
       {
         path: '*',
@@ -71,7 +88,10 @@ export function AppRoutes() {
         <Route path="commissions" element={<CommissionConfigPage />} />
         <Route path="commissions/search" element={<CommissionSearchPage />} />
         <Route path="commissions/franchise-balance" element={<FranchiseAddBalancePage />} />
-        <Route path="plans" element={<PlansPage />} />
+        <Route path="plans" element={<PlanListPage />} />
+        <Route path="plans/denominations" element={<DenominationConfigPage />} />
+        <Route path="plans/mnp" element={<MnpConfigPage />} />
+        <Route path="plans/number-series" element={<NumberSeriesPage />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>

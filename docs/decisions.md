@@ -280,3 +280,38 @@ Wallet Management domain, since it's a real part of the API surface.
   - Both `DealerListPage` and `DealerDetailPage` are gated under `<PermissionGuard permission="dealerPermissions">`.
 
 **Why:** Satisfies backend multipart requirements without breaking existing JSON endpoints, enforces telecom compliance on channel entity lifecycle actions, and prevents accidental credential resets or unauthorized hierarchy modifications.
+
+---
+
+## Decision: Product Plans, Denominations, MNP Routing, and Number Series Architecture
+
+**Context:** The telecom SCM platform manages commercial catalog offerings, prepaid top-up denominations, Mobile Number Portability (MNP) routing registers, and Intelligent Network (IN) subscriber number series ranges. Each module manages critical network configuration or billing rules and requires strict OTP governance with distinct topic names matching legacy gateway requirements.
+
+**Finding & Topic Matrix:**
+1. **Product Plans** (`/scm-plans-api/scm-product-api/`):
+   - Add Plan: `topic: 'Addplan'` -> `POST /addplan`
+   - Update Plan: `topic: 'ModifyPlan'` -> `POST /updateplan`
+   - Delete Plan: Permanent deletion guarded by `ConfirmationDialog` -> `POST /deleteplan`
+2. **Denominations** (`/scm-plans-api/scm-product-api/`):
+   - Save Denomination: `topic: 'Denominationconfiguration'` -> `POST /saveDenomination`
+3. **MNP Routing** (`/scm-db-api/masterdata-db-api/`):
+   - Add MNP: `topic: 'ADD MNP'` (exact uppercase with space matching Postman collection) -> `POST /savemnp`
+   - Modify MNP: `topic: 'ModifyMnp'` -> `POST /modifyMnpData`
+   - Delete MNP: `ConfirmationDialog` then `topic: 'DeleteMnp'` -> `POST /deleteMnp`
+4. **Number Series** (`/scm-db-api/masterdata-db-api/`):
+   - Add Series: `topic: 'AddnumberSeries'` -> `POST /addnumberseries`
+   - Edit Series: `topic: 'ModfifynumberSeries'` (exact Postman collection spelling with 'f') -> `POST /editnumberseries`
+   - Purge Series: `ConfirmationDialog` then `topic: 'DeleteNumberseries'` -> `POST /purgenumberseries`
+
+**Decision:**
+- **Shared Sub-Navigation (`src/features/plans/PlansNavigation.tsx`):**
+  - Designed an accessible line-bar navigation bar (`PlansNavigation`) linking all 4 modules (`/plans`, `/plans/denominations`, `/plans/mnp`, `/plans/number-series`) with active route indicators, icon cues, and subtle transition styling.
+- **Unified Permission Guard:**
+  - All four pages (`PlanListPage`, `DenominationConfigPage`, `MnpConfigPage`, `NumberSeriesPage`) are secured under `<PermissionGuard permission="plansNumberpermissions">`.
+- **Reusable Form Architectures:**
+  - `PlanForm.tsx`: partitioned into structured `FormSection` blocks ('Plan Specification', 'Commercial Parameters', 'Regional & Validity Settings') with Zod schema validation (`src/schemas/plan.schema.ts`).
+  - Dialog-based workflows with SearchToolbar filters, pagination, and `DataTable` rendering for all four domains.
+- **Universal OTP Safety:**
+  - OTP verification modal is raised before any mutation request is issued. All operations submit the user's mobile number (`operation: '10069'`) and execute mutations only upon cryptographically verified OTP tokens.
+
+**Why:** Unifies four related telecom network configuration domains under a consistent line-bar UI while rigorously conforming to backend routing endpoints, payload schemas, and precise legacy OTP topics.
