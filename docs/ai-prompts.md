@@ -637,3 +637,106 @@ Write tests: schema validation catches invalid required fields, form renders all
     - `MnpConfigPage.test.tsx` (5 tests): verifies PermissionGuard, table rendering, Add MNP with exact topic `'ADD MNP'`, Edit MNP with `'ModifyMnp'`, and Delete MNP with `'DeleteMnp'`.
     - `DenominationAndNumberSeries.test.tsx` (4 tests): verifies Denomination Add with topic `'Denominationconfiguration'`, Number Series Add with `'AddnumberSeries'`, Edit with exact topic `'ModfifynumberSeries'`, and Purge with `'DeleteNumberseries'`.
 
+---
+
+### Prompt 15: Tabs Component Active Indicator Line
+
+**User Request:**
+> in tabs component, make the active tab element line also should be blue.
+
+**Solution:**
+1. In `src/features/plans/PlansNavigation.tsx`:
+   - Positioned an explicit active indicator bar (`<span className="absolute -bottom-px left-0 right-0 h-[2.5px] bg-blue-600 rounded-t-sm z-10 pointer-events-none" data-testid="active-tab-indicator" />`) to prevent container overflow clipping and ensure a crisp `#2563EB` blue bar overlays the container border.
+2. In `src/components/ui/tabs.tsx`:
+   - Added direct active state classes to `TabsTrigger` (`data-selected:border-b-2 data-selected:border-blue-600 data-selected:text-blue-600`, `data-[state=active]:...`, `aria-selected:...`) to bypass parent variant selector chaining limitations in Tailwind v4.
+   - Built and exported `TabsIndicator` wrapping `@base-ui/react/tabs`'s `TabsPrimitive.Indicator`.
+3. Integrated `TabsIndicator` in `CommissionConfigPage.tsx` and `CommissionSearchPage.tsx`.
+4. Verified all 32 tests in plans and commissions passed.
+
+---
+
+### Prompt 16: Comprehensive Architecture Documentation, README, and ADR Consolidation
+
+**User Request:**
+> Write docs/architecture.md covering: component architecture (the layered UI→hook→service→client pattern, and the reusable component set built), API architecture (single-host, path-prefixed domains, the 6 confirmed domains including wallet), state management (TanStack Query for server state, Zustand for auth/OTP client state — with the reasoning from decisions.md), error handling (ApiError component + error states across DataTable/forms), authentication/authorization (authStore + PermissionGuard pattern), OTP workflow (the useOtpFlow state machine, topics-per-operation table from api-mapping.md), and testing strategy (unit/component/integration/E2E breakdown, what's covered vs known gaps).
+> 
+> Write README.md with: project overview, setup instructions (clone, npm install, .env.local setup from .env.example), how to run dev server, how to run unit tests (npm test) and E2E tests (npm run test:e2e), how to run production build, AI tools used (Antigravity, note why — free tier access), and known limitations (list: dashboard KPIs/activities are mocked pending real aggregate endpoints, dealer list endpoint assumption if any was made, any modules not fully built if time ran out, OTP E2E testing approach used).
+> 
+> Also do a final pass over docs/decisions.md to consolidate and remove any duplicate or superseded entries from earlier in the build.
+
+**Solution:**
+1. Created `docs/architecture.md` with 7 detailed technical sections:
+   - **Component Architecture**: 4-tier layered model (UI &rarr; Hook &rarr; Service &rarr; HTTP Client) and reusable component catalog (`DataTable`, `SearchToolbar`, `FormSection`, `LoadingState`, `StatusBadge`, `ConfirmationDialog`, geographic dropdowns).
+   - **API Architecture**: Single-host gateway routing via `VITE_API_BASE_URL` across 6 path-prefixed domains (`/scm-auth-api/`, `/scm-dealer-api/`, `/scm-plans-api/`, `/scm-db-api/`, `/scm-wallet-api/`, `/scm-report-api/`).
+   - **State Management**: Separation of Server State (TanStack Query v5) and Client State (Zustand v5) with architectural rationale.
+   - **Error Handling**: 3-tier error trapping (`ApiError`, React Hook Form + Zod, `DataTable` retry boundaries, Base UI toasts).
+   - **Authentication & Authorization**: `authStore` RBAC matrix with 33 permission flags declaratively guarded by `<PermissionGuard>`.
+   - **OTP Workflow**: `useOtpFlow` finite state machine and full 20+ operations topic mapping matrix (`10069`).
+   - **Testing Strategy**: Pyramid test model (174 tests, 28 suites) and documentation of covered flows vs live gateway limitations.
+2. Created `.env.example` and wrote root `README.md` with setup instructions, development server run commands, test execution (`npm test`, `npm run test:e2e`), production build commands, AI tooling disclosure (Google Antigravity with free tier rationale), and transparent limitations disclosure.
+3. Consolidated `docs/decisions.md` into 12 structured Architecture Decision Records (`ADR-001` through `ADR-012`), harmonizing shell layout iterations and adding explicit state management partitioning rationale.
+4. Validated: all 28 test suites (174/174 tests) passed and production build succeeded.
+
+---
+
+### Prompt 17: Full Design Pass Across the Entire Platform
+
+**User Request:**
+> Take a full design pass across the app with these specific, human-considered changes — not decoration, structural fixes:
+> 1. Color system overhaul: Replace the pure black (#000/near-black) sidebar and header with a deep navy/slate (e.g. #0F172A or similar — pick one considered dark tone, not black). Content area stays a warm off-white (not stark white — e.g. #FAFAFA/#F8F9FB). This should read as a deliberate brand palette, not a default dark-mode toggle.
+> 2. New Login screen (src/features/auth/LoginPage.tsx): Split-screen layout — left side (or right, your call) is the actual login form: SCM Portal branding, username/password fields (shadcn Form), a clean 'Sign In' button, using Manrope for the heading and Inter for the rest, matching the app's established type system. The other side is a visual hero panel — NOT a generic gradient blob. Use a real illustration or abstract representation relevant to the domain: network topology, telecom infrastructure, a stylized dashboard preview, or a geometric pattern suggesting connected nodes/circles (tying into your Zone→Circle→SSA hierarchy conceptually). Include 2-3 lines of professional copy about the portal (e.g. 'Unified operations console for dealer networks, commission management, and provisioning across circles' — write something real, not filler). This is the one place in the app that can have a bit more visual personality since it's the entry point, not the dense workspace.
+> 3. Dashboard simplification: Remove generic badge/pill chrome: the 'API Connected' pill and 'Cluster node: scm-db-primary' pill in the header should become plain, quiet inline text or a single minimal indicator — not bordered rounded pills, which read as decoration. Add ONE subtle, purposeful entrance: when the dashboard data finishes loading, the KPI numbers can count up briefly (0 to final value, ~400-600ms) instead of just appearing — this is a considered, functional animation (shows real data arriving), not decorative page-fade-in. Nothing else on the page should animate on load.
+> 4. Fixed sidebar, scrollable main content: The sidebar (nav + version footer) should use position: fixed / sticky with its own fixed height (100vh), not scroll with the page. The main content area scrolls independently within its own container. The version number and any footer text should be pinned to the bottom of the sidebar via flexbox (justify-between or mt-auto), staying visible without scrolling.
+> 5. Sidebar menu restructuring: Merge 'Commissions' and 'Commission Search' into a single 'Commissions' nav item with an expandable sub-menu (Configuration, Search, Franchise Balance as sub-links) — collapsed by default, expands on click, indent sub-items slightly with a smaller font size. Apply the same pattern to 'Plans & Numbers' if it has multiple sub-destinations (Plans, Denominations, MNP, Number Series) rather than being one flat link. Category group labels (Operations/Management/Configuration) stay as-is — that part already works well.
+> Show me the full plan — color values, login screen layout, sidebar structure — before implementing, since this touches almost every screen.
+
+**Solution:**
+1. Created and presented detailed implementation plan artifact `implementation_plan.md` and obtained user approval.
+2. Built `CountUpNumber.tsx` with non-blocking cubic ease-out animation (~450ms) and deterministic test/accessibility bypass. Integrated into `DashboardPage.tsx` across all 7 KPI numbers.
+3. Overhauled color system:
+   - Header and sidebar: Deep Navy/Slate `#0F172A` with `#1E293B` borders.
+   - Main workspace: Warm off-white canvas `#F8F9FB` with pure white cards `#FFFFFF`.
+4. Built split-screen `src/features/auth/LoginPage.tsx` with:
+   - Form column: SCM Portal wordmark, Manrope `Operator Sign In` heading, credential inputs, show/hide password toggle, and "Fill demo login" helper.
+   - Hero column: Deep navy `#0B1120` canvas with custom SVG Network Topology diagram (Zone Core &rarr; Circle Gateways &rarr; SSA Nodes) with operating circles statistics and domain copy.
+   - Configured `/login` route in `routes.tsx` and created `LoginPage.test.tsx` (5/5 tests passing).
+5. Simplified header and dashboard chrome: replaced bordered rounded pill badges with plain inline status text (`API Connected • scm-db-primary`).
+6. Enforced fixed viewport layout: `h-screen w-screen flex flex-col bg-[#0F172A] overflow-hidden` with fixed `100vh` sidebar, pinned footer, and independently scrollable `<main>` canvas.
+7. Restructured sidebar into expandable menus with smooth caret animation:
+   - `Commissions`: `Configuration`, `Search & Modify`, `Franchise Balance`.
+   - `Plans & Numbers`: `Product Plans`, `Denominations`, `MNP Routing`, `Number Series`.
+   - Auto-expands active parent group based on URL pathname.
+   - Added user profile avatar with dedicated Sign Out action.
+8. Verified all 29 test suites (181/181 tests) passing and production build succeeded.
+
+---
+
+### Prompt 18: Sidebar Footer Simplification (Border Lines & Pending Actions Removal)
+
+**User Request:**
+> remove this lines and remove pending actions (with screenshot of sidebar footer showing top border, "SYSTEM STATUS", "Pending actions [24]", and horizontal line above "SCM Console v0.1.0")
+
+**Solution:**
+1. In `src/app/AppLayout.tsx`:
+   - Removed the top border `border-t border-[#1E293B]` and inner horizontal line `border-t border-slate-800/80` from the sidebar footer.
+   - Removed the "SYSTEM STATUS" label and the "Pending actions" navigation link with its counter badge.
+   - Removed the now-unused `kpis` query and `dashboardApi` import from `AppLayout.tsx`.
+   - Maintained the dynamic active OTP session alert box and the clean version footnote pinned at the bottom.
+2. Verified all 29 test suites (181/181 tests) passed.
+
+---
+
+### Prompt 19: Slightly Increase Sidebar Elements Font Size
+
+**User Request:**
+> sligtly increase the sidebar elements font size
+
+**Solution:**
+1. In `src/app/AppLayout.tsx`:
+   - Increased section headers from `text-[10px]` to `text-[11px] font-semibold`.
+   - Increased primary navigation links and expandable parent triggers from `text-xs` (12px) to `text-[13px] font-medium` with `h-4 w-4` icons (up from `h-3.5 w-3.5`) and `h-3.5 w-3.5` chevrons.
+   - Increased nested sub-links from `text-[11px]` to `text-xs` (12px).
+   - Increased sidebar width from `w-56` (224px) to `w-60` (240px) to provide comfortable breathing room and padding for the larger typography.
+   - Bumped version footnote to `text-[11px] text-slate-500`.
+2. Verified: all 29 test suites (181/181 tests) passed and production build compiled with 0 errors.
+
