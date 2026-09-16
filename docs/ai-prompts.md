@@ -82,3 +82,47 @@ Installed zustand. Implemented src/stores/authStore.ts with UserPermissions (38-
 - Clear architectural separation: client UI flow state in Zustand, server cache preserved for TanStack Query.
 - Unit tests verified passing.
 
+## Prompt: Cascading Master Data Selectors (Zone, Circle, SSA)
+
+**Prompt:**
+"Build ZoneSelector, CircleSelector, and SSASelector components in src/components/forms/. They're cascading dropdowns: selecting a Zone fetches and enables the Circle dropdown for that zone, selecting a Circle fetches and enables the SSA dropdown for that circle. Use TanStack Query for fetching from the master-data API (create masterdata.api.ts as a service file, based on the master-data endpoints in docs/api-mapping.md). Use the shadcn Select component. Show a Skeleton while loading, and keep the dependent dropdown disabled until its parent is selected. Each component should accept an onChange callback and optional defaultValue so they're reusable across different forms. Write unit tests covering: initial disabled state, loading state, and that selecting a zone triggers the circle fetch."
+
+**AI Output:**
+Implemented src/api/client.ts (base fetch client with ApiError) and src/api/masterdata.api.ts with typed master data models and TanStack Query hooks (useZonesQuery, useCirclesByZoneQuery, useSSAsByCircleQuery). Implemented ZoneSelector, CircleSelector, and SSASelector in src/components/forms/ using shadcn Select and Skeleton for loading states. Kept dependent children disabled until parent selection. Created Vitest suite in GeoSelectors.test.tsx covering initial disabled states, loading states, and cascading query execution.
+
+**Accepted:**
+- Complete cascading dependency chain (Zone -> Circle -> SSA).
+- Reusable props interface (value, defaultValue, onChange, disabled, placeholder, className).
+- All 8 tests passed. Build verified.
+
+## Prompt: Generic OTP Verification Engine (API, Hook, Modal)
+
+**Prompt:**
+"Build src/api/otp.api.ts with two functions calling the real endpoints from docs/api-mapping.md: sendOtp({ msisdn, operation: '10069', topic }) → POST /scm-db-api/masterdata-db-api/sendOtp, and validateOtp({ otp, operation: '10069', msisdn }) → POST /scm-db-api/masterdata-db-api/validateOtp (as query params, matching the collection). Then build a useOtpFlow hook in src/hooks/ that wraps our existing otpStore: exposes start(context: { topic, msisdn, actionName }), a sendOtp() call that transitions confirming→otpSent, a submitOtp(code) that transitions otpSent→validating→success/failure, and an onSuccess callback the caller provides for the actual mutation to run only after validation succeeds. Then build OTPVerificationModal in src/components/forms/ using the shadcn Dialog — shows the actionName, an OTP input, resend option, and the current otpStore status. It should be fully generic — takes the topic/msisdn/actionName as props and an onVerified callback, no feature-specific logic inside it. Write unit tests for: the hook's transition sequence, and the modal calling onVerified only after a successful validateOtp response."
+
+**AI Output:**
+Implemented src/api/otp.api.ts calling POST /sendOtp with JSON body and POST /validateOtp with query params per Postman specs. Built useOtpFlow in src/hooks/ coordinating the otpStore finite state machine with automatic/manual send, validation, and guarded onSuccess execution. Built fully generic OTPVerificationModal in src/components/forms/ using shadcn Dialog with masked MSISDN, cooldown resend timer, error feedback, and disabled submit states. Added 11 unit tests in useOtpFlow.test.ts and OTPVerificationModal.test.tsx verifying the complete transition sequence and ensuring onVerified is strictly invoked only after valid OTP verification.
+
+**Accepted:**
+- Generic decoupled OTP verification flow reusable across all 29 protected mutations.
+- Guaranteed mutation gate: onVerified executes strictly on HTTP 200 validation.
+- All unit tests and Playwright E2E passed.
+
+---
+
+### Prompt 7: OTP Store Validation Retry Limit & Error Surfacing
+
+**Prompt:**
+"In otpStore.ts, look at the setValidating action. It currently increments attempts but never checks the count. Add a max retry limit: if attempts would exceed 3, reject the transition to validating and instead force status to otpSent with an errorMessage like 'Too many failed attempts. Please request a new OTP.' Then update useOtpFlow's submitOtp to surface this correctly (canValidate will be false, so it should already return false and the errorMessage should show in the UI via otpStore's errorMessage). Add a test in otpStore.test.ts confirming the 4th validating attempt is blocked and forces otpSent instead."
+
+**AI Output:**
+Updated `setValidating` in `src/stores/otpStore.ts` to check current attempts count (`>= 3`). When attempts reach 3, any subsequent attempt transition to `validating` is rejected (`return false`), forcing status back to `otpSent` and setting `errorMessage: 'Too many failed attempts. Please request a new OTP.'`. Updated `src/hooks/useOtpFlow.ts` in `submitOtp` to return `false` when validation transition is blocked and invoke the `onError` callback with the store error message. Updated `OTPVerificationModal.tsx` to display the feedback banner whenever `flow.isFailure` or `flow.errorMessage` is present so the retry limit error is visible in `otpSent` state. Updated `src/stores/otpStore.test.ts`, `src/hooks/useOtpFlow.test.ts`, and `src/components/forms/OTPVerificationModal.test.tsx` with test coverage for max retry blocking, error message surfacing, and attempts reset upon requesting a new OTP.
+
+**Accepted:**
+- Strict 3-attempt retry ceiling enforced in state machine.
+- 4th validating attempt blocked and forced to `otpSent` with user-friendly error message.
+- Full UI visibility of error and seamless resend OTP recovery resetting attempts.
+- All 46 tests passing across 6 test suites with clean production build.
+
+
+

@@ -20,7 +20,7 @@ export interface OtpContext {
 const ALLOWED_TRANSITIONS: Record<OtpStatus, OtpStatus[]> = {
   idle: ['confirming', 'otpSent'],
   confirming: ['otpSent', 'idle'],
-  otpSent: ['validating', 'idle'],
+  otpSent: ['validating', 'otpSent', 'idle'],
   validating: ['success', 'failure', 'idle'],
   failure: ['validating', 'otpSent', 'idle'],
   success: ['idle'],
@@ -90,14 +90,24 @@ export const useOtpStore = create<OtpState>((set, get) => {
       transitionTo('confirming', { errorMessage: null }),
 
     setOtpSent: () =>
-      transitionTo('otpSent', { errorMessage: null }),
+      transitionTo('otpSent', { errorMessage: null, attempts: 0 }),
 
-    setValidating: (otpCode: string) =>
-      transitionTo('validating', {
+    setValidating: (otpCode: string) => {
+      const currentAttempts = get().attempts
+      if (currentAttempts >= 3) {
+        set({
+          status: 'otpSent',
+          errorMessage: 'Too many failed attempts. Please request a new OTP.',
+        })
+        return false
+      }
+
+      return transitionTo('validating', {
         otpCode,
         errorMessage: null,
-        attempts: get().attempts + 1,
-      }),
+        attempts: currentAttempts + 1,
+      })
+    },
 
     setSuccess: () =>
       transitionTo('success', { errorMessage: null }),

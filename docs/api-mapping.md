@@ -4,6 +4,50 @@ This document provides a comprehensive technical analysis of the **SCM Postman A
 
 ---
 
+## API Base Confirmation
+
+Single host: `https://ui.example.com` — NOT separate hosts per domain
+as originally assumed from the JD wording. All domains are path
+prefixes off the same base.
+
+## Confirmed Domain Path Prefixes
+
+| Domain | Path prefix | Notes |
+|---|---|---|
+| Master data / OTP | `/scm-db-api/masterdata-db-api/` | zones, circles, ssas, sendOtp, validateOtp, category, dealerType, MNP, number series |
+| User | `/scm-user-api/scm-user-api/` | doubled segment — confirmed from collection, not a typo |
+| Dealer | `/scm-dealer-api/scm-dealer-api/` | doubled segment — confirmed from collection, not a typo |
+| Plans / Commission | `/scm-plans-api/scm-product-api/` | plans, denominations, commission CRUD |
+| Franchise reports | `/scmfmis-reports-api/scm-franchise-gui/` | franchise add balance approve/reject |
+| **Wallet** | `/scm-stock-api/stock-api/` | **not in original 5-domain assumption** — wallet adjustment endpoint |
+
+## OTP Topics by Operation
+
+| Module | Action | topic value |
+|---|---|---|
+| User | Create | UserCreation |
+| User | Edit | Modifyuseredit |
+| User | Permissions | Modifyuserpermission |
+| User | Status | Modifyuserstatus |
+| User | Password | ChangePassword |
+| Dealer | Create | Dealercreation |
+| Dealer | Edit | Modifydealer |
+| Dealer | Status | DealerStatus |
+| Dealer | Hierarchy | DealerHierarchyChange |
+| Dealer | MPIN reset | DealerMpinreset |
+| Commission | Prepaid FRC | PrepaidFrc |
+| Commission | Prepaid OTF | PrepaidOtf |
+| Commission | Postpaid | Postpaid |
+| Commission | Landline | Landline |
+| Commission | Modify (per type) | Modify_PrepaidFRC / Modify_PrepaidOTF / Modify_Postpaid / Modify_Landline |
+| Plan | Add | Addplan |
+| Plan | Denomination | Denominationconfiguration |
+| Plan | MNP add/edit/delete | ADD MNP / ModifyMnp / DeleteMnp |
+| Plan | Number series | AddnumberSeries / ModfifynumberSeries / DeleteNumberseries |
+| Franchise | Add balance approve/reject | FranchiseAddbalanceApprove / FranchiseAddbalanceReject |
+
+All OTP calls use `operation: "10069"` — this is a fixed constant, not per-topic.
+
 ## 1. Executive Summary & Microservice Architecture
 
 The Postman collection contains **126 total requests** organized across 5 functional folders. These represent **71 unique HTTP routes** across 6 backend microservices. The difference between total collection requests and unique routes arises because:

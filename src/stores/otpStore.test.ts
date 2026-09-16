@@ -129,6 +129,65 @@ describe('otpStore State Machine', () => {
     expect(useOtpStore.getState().status).toBe('confirming')
   })
 
+  it('blocks the 4th validating attempt when exceeding max retries and forces otpSent with error message', () => {
+    useOtpStore.getState().startFlow(sampleContext, 'otpSent')
+
+    // 1st attempt: 0 -> 1
+    expect(useOtpStore.getState().setValidating('111111')).toBe(true)
+    expect(useOtpStore.getState().status).toBe('validating')
+    expect(useOtpStore.getState().attempts).toBe(1)
+    useOtpStore.getState().setFailure('Incorrect OTP 1')
+
+    // 2nd attempt: 1 -> 2
+    expect(useOtpStore.getState().setValidating('222222')).toBe(true)
+    expect(useOtpStore.getState().status).toBe('validating')
+    expect(useOtpStore.getState().attempts).toBe(2)
+    useOtpStore.getState().setFailure('Incorrect OTP 2')
+
+    // 3rd attempt: 2 -> 3
+    expect(useOtpStore.getState().setValidating('333333')).toBe(true)
+    expect(useOtpStore.getState().status).toBe('validating')
+    expect(useOtpStore.getState().attempts).toBe(3)
+    useOtpStore.getState().setFailure('Incorrect OTP 3')
+
+    // 4th validating attempt is blocked and forces otpSent
+    const canValidate = useOtpStore.getState().setValidating('444444')
+    expect(canValidate).toBe(false)
+
+    const state = useOtpStore.getState()
+    expect(state.status).toBe('otpSent')
+    expect(state.errorMessage).toBe('Too many failed attempts. Please request a new OTP.')
+    expect(state.attempts).toBe(3)
+  })
+
+  it('resets attempts and clears error message when setOtpSent is called to request a new OTP', () => {
+    useOtpStore.getState().startFlow(sampleContext, 'otpSent')
+
+    // Exhaust 3 attempts
+    for (let i = 1; i <= 3; i++) {
+      useOtpStore.getState().setValidating(`11111${i}`)
+      useOtpStore.getState().setFailure(`Attempt ${i} failed`)
+    }
+
+    // 4th attempt blocked
+    expect(useOtpStore.getState().setValidating('999999')).toBe(false)
+    expect(useOtpStore.getState().status).toBe('otpSent')
+    expect(useOtpStore.getState().errorMessage).toBe('Too many failed attempts. Please request a new OTP.')
+
+    // Request new OTP via setOtpSent
+    const resendSuccess = useOtpStore.getState().setOtpSent()
+    expect(resendSuccess).toBe(true)
+
+    const state = useOtpStore.getState()
+    expect(state.status).toBe('otpSent')
+    expect(state.errorMessage).toBeNull()
+    expect(state.attempts).toBe(0)
+
+    // Allowed to validate again with fresh OTP
+    expect(useOtpStore.getState().setValidating('123456')).toBe(true)
+    expect(useOtpStore.getState().status).toBe('validating')
+  })
+
   it('resets from any active state back to idle', () => {
     useOtpStore.getState().startFlow(sampleContext, 'otpSent')
     useOtpStore.getState().setValidating('123456')
