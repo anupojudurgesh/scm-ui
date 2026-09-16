@@ -124,5 +124,42 @@ Updated `setValidating` in `src/stores/otpStore.ts` to check current attempts co
 - Full UI visibility of error and seamless resend OTP recovery resetting attempts.
 - All 46 tests passing across 6 test suites with clean production build.
 
+---
+
+### Prompt 8: Generic DataTable Component with States & Pagination
+
+**Prompt:**
+"Build a generic DataTable component in src/components/tables/DataTable.tsx using the shadcn Table primitives. It should accept: columns (id, header, accessor/render function), data, loading (boolean), error (optional), onRowClick (optional), and pagination props (page, pageSize, totalCount, onPageChange). Handle four states explicitly: loading (Skeleton rows), error (message + retry callback prop), empty ('no results' message), and populated (normal table). Keep it generic over row type using TypeScript generics — no hardcoded columns for any specific feature. Write unit tests for: loading state renders skeletons, empty state renders when data is [], error state renders and calls onRetry when clicked, and populated state renders the right number of rows."
+
+**AI Output:**
+Built `src/components/tables/DataTable.tsx` utilizing shadcn `Table`, `TableHeader`, `TableBody`, `TableHead`, `TableRow`, and `TableCell` primitives alongside `Skeleton` and `Button`. Configured TypeScript generics `DataTable<T>` accepting custom columns (with key accessor, accessor function, and custom cell renderer). Explicitly handled four states: loading (Skeleton rows across all columns), error (alert indicator, error message from string or Error, and optional onRetry action button), empty ('No results found.' placeholder with icon), and populated (rows with optional onRowClick handler and hover styles). Added responsive pagination controls supporting direct or nested pagination props with boundary button disabling. Created `src/components/tables/DataTable.test.tsx` containing 10 unit tests covering all required states, retry triggers, and pagination.
+
+**Accepted:**
+- Fully decoupled, generic DataTable usable across User, Dealer, Plan, Commission, and Master-Data views.
+- 4 explicit states handled cleanly with accessible semantics and Skeleton animations.
+- 10 unit tests passing, bringing the test suite total to 56 passing tests across 7 test suites.
+- Clean TypeScript and Vite production build.
+
+---
+
+### Prompt 9: Reusable Feedback & Auth Components (PermissionGuard, StatusBadge, ConfirmationDialog, ApiError)
+
+**Prompt:**
+"Build these smaller reusable components: (1) PermissionGuard in src/components/PermissionGuard.tsx — takes a permission prop (matching authStore's hasPermission keys) and children, renders children only if hasPermission(permission) is true from authStore, otherwise renders nothing (or an optional fallback prop). (2) StatusBadge in src/components/feedback/StatusBadge.tsx — takes a status prop and maps common SCM statuses (Active, Inactive, Pending, Blocked) to shadcn Badge variants with appropriate colors. (3) ConfirmationDialog in src/components/feedback/ConfirmationDialog.tsx — generic shadcn Dialog-based confirm/cancel prompt, takes title, description, onConfirm, onCancel, open, onOpenChange, and an optional destructive boolean for styling dangerous actions (like delete/purge). (4) ApiError in src/components/feedback/ApiError.tsx — displays a formatted error from our ApiError type (client.ts), with a retry button. Write focused unit tests for each: PermissionGuard renders/hides based on mocked authStore state, StatusBadge maps each status correctly, ConfirmationDialog calls the right callback for confirm vs cancel, ApiError renders message and calls onRetry."
+
+**AI Output:**
+1. Created `src/components/PermissionGuard.tsx` integrating with `authStore`'s `hasPermission` method to conditionally render guarded children or an optional fallback.
+2. Created `src/components/feedback/StatusBadge.tsx` mapping common SCM statuses (Active, Inactive, Pending, Blocked) to shadcn `Badge` variants with custom color themes (emerald, slate, amber, red) and dot indicators.
+3. Created `src/components/feedback/ConfirmationDialog.tsx` wrapping shadcn `Dialog` with title, description, confirm/cancel buttons, and destructive styling (red button, warning icon).
+4. Created `src/components/feedback/ApiError.tsx` formatting errors from `src/api/client.ts` with HTTP status code tags, user-friendly details, and an optional retry button.
+5. Added comprehensive test suites: `PermissionGuard.test.tsx`, `StatusBadge.test.tsx`, `ConfirmationDialog.test.tsx`, and `ApiError.test.tsx` (22 new unit tests).
+
+**Accepted:**
+- Reusable UI building blocks for permission-based gating and user feedback.
+- All 78 unit tests passing across 11 test suites.
+- Zero TypeScript or bundling errors on production build.
+
+
+
 
 
