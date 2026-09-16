@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams, Navigate } from 'react-router-dom'
 import { Eye, EyeOff, Lock, User, ShieldCheck, Radio, ArrowRight, Loader2 } from 'lucide-react'
 import { loginSchema, type LoginFormData } from '@/schemas/auth.schema'
 import { useAuthStore } from '@/stores/authStore'
@@ -9,10 +9,13 @@ import { cn } from '@/lib/utils'
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const setAuth = useAuthStore((state) => state.setAuth)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // All hooks must be called unconditionally before any early return.
   const {
     register,
     handleSubmit,
@@ -26,6 +29,13 @@ export function LoginPage() {
       rememberMe: false,
     },
   })
+
+  // Already authenticated — skip the login page entirely.
+  // This comes after all hook calls to comply with the Rules of Hooks.
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />
+  }
+
 
   const onSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true)
@@ -85,7 +95,10 @@ export function LoginPage() {
     )
 
     setIsSubmitting(false)
-    navigate('/dashboard')
+    // Navigate to the originally requested route (preserved by ProtectedRoute),
+    // falling back to /dashboard if no redirect param is present.
+    const redirect = searchParams.get('redirect')
+    navigate(redirect && redirect.startsWith('/') ? redirect : '/dashboard', { replace: true })
   }
 
   const fillDemoCredentials = () => {

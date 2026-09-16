@@ -23,13 +23,48 @@ function renderApp(initialRoute = '/') {
   )
 }
 
+/** Authenticates the auth store with a full-admin profile */
+function loginAsAdmin() {
+  useAuthStore.getState().setAuth(
+    {
+      userId: 101,
+      username: 'admin_user',
+      hrmsId: 'HRMS101',
+      roleId: 1,
+      roleName: 'System Administrator',
+    },
+    {
+      userPermissions: 1,
+      dealerPermissions: 1,
+      commissionPermissions: 1,
+      plansNumberpermissions: 1,
+    }
+  )
+}
+
 describe('App Routing & Layout Navigation', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
     useAuthStore.getState().clearAuth()
   })
 
-  it('renders top navbar branding and status badge', () => {
+  it('unauthenticated user visiting /dashboard is redirected to /login', () => {
+    renderApp('/dashboard')
+
+    // Should land on the login page, not the dashboard
+    expect(screen.getByTestId('login-page')).toBeInTheDocument()
+    expect(screen.queryByTestId('dashboard-page')).not.toBeInTheDocument()
+  })
+
+  it('unauthenticated user visiting / is redirected to /login', () => {
+    renderApp('/')
+
+    expect(screen.getByTestId('login-page')).toBeInTheDocument()
+    expect(screen.queryByTestId('dashboard-page')).not.toBeInTheDocument()
+  })
+
+  it('renders top navbar branding and status badge when authenticated', () => {
+    loginAsAdmin()
     renderApp('/dashboard')
 
     expect(screen.getByText('SCM Portal')).toBeInTheDocument()
@@ -37,7 +72,12 @@ describe('App Routing & Layout Navigation', () => {
     expect(screen.getByTestId('sidebar-navigation')).toBeInTheDocument()
   })
 
-  it('renders Dashboard nav link by default and hides permission-gated nav items when unauthenticated', () => {
+  it('renders Dashboard nav link by default and hides permission-gated nav items when user has no extra permissions', () => {
+    // Authenticate with no feature permissions
+    useAuthStore.getState().setAuth(
+      { userId: 101, username: 'admin_user', hrmsId: 'HRMS101', roleId: 1, roleName: 'System Administrator' },
+      {}
+    )
     renderApp('/dashboard')
 
     // Dashboard nav link is always visible
@@ -51,22 +91,7 @@ describe('App Routing & Layout Navigation', () => {
   })
 
   it('renders permission-gated nav items when the user has appropriate permissions', () => {
-    useAuthStore.getState().setAuth(
-      {
-        userId: 101,
-        username: 'admin_user',
-        hrmsId: 'HRMS101',
-        roleId: 1,
-        roleName: 'System Administrator',
-      },
-      {
-        userPermissions: 1,
-        dealerPermissions: 1,
-        commissionPermissions: 1,
-        plansNumberpermissions: 1,
-      }
-    )
-
+    loginAsAdmin()
     renderApp('/dashboard')
 
     // All links should now be visible
@@ -81,7 +106,8 @@ describe('App Routing & Layout Navigation', () => {
     expect(screen.getByText('System Administrator')).toBeInTheDocument()
   })
 
-  it('redirects root "/" to "/dashboard" and renders DashboardPage', async () => {
+  it('redirects root "/" to "/dashboard" for authenticated user and renders DashboardPage', () => {
+    loginAsAdmin()
     renderApp('/')
 
     // Confirms redirect reached DashboardPage
@@ -90,7 +116,8 @@ describe('App Routing & Layout Navigation', () => {
     expect(screen.getByTestId('kpi-grid')).toBeInTheDocument()
   })
 
-  it('renders DashboardPage directly at "/dashboard"', () => {
+  it('renders DashboardPage directly at "/dashboard" for authenticated user', () => {
+    loginAsAdmin()
     renderApp('/dashboard')
 
     expect(screen.getByTestId('dashboard-page')).toBeInTheDocument()
@@ -179,3 +206,4 @@ describe('App Routing & Layout Navigation', () => {
     expect(useAuthStore.getState().user).toBeNull()
   })
 })
+
