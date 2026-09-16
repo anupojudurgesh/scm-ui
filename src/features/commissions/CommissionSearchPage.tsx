@@ -4,6 +4,7 @@ import {
   Tabs,
   TabsList,
   TabsTrigger,
+  TabsIndicator,
 } from '@/components/ui/tabs'
 import { DataTable, type DataTableColumn } from '@/components/tables/DataTable'
 import { SearchToolbar } from '@/components/tables/SearchToolbar'
@@ -645,6 +646,7 @@ export function CommissionSearchPage() {
                 <Layers className="h-3.5 w-3.5" />
                 Landline
               </TabsTrigger>
+              <TabsIndicator />
             </TabsList>
           </Tabs>
         </div>

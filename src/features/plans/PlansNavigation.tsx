@@ -63,10 +63,10 @@ export function PlansNavigation({ activeTab, className }: PlansNavigationProps) 
               type="button"
               onClick={() => navigate(tab.path)}
               className={cn(
-                'group inline-flex items-center gap-2 py-3 px-1 border-b-2 text-xs sm:text-sm font-medium transition-all whitespace-nowrap outline-none',
+                'group relative inline-flex items-center gap-2 py-3 px-1 text-xs sm:text-sm font-medium transition-all whitespace-nowrap outline-none',
                 isActive
-                  ? 'border-blue-600 text-blue-600 font-semibold'
-                  : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'
+                  ? 'text-blue-600 font-semibold'
+                  : 'text-slate-500 hover:text-slate-800'
               )}
               data-testid={`tab-nav-${tab.id}`}
             >
@@ -77,6 +77,12 @@ export function PlansNavigation({ activeTab, className }: PlansNavigationProps) 
                 )}
               />
               <span>{tab.label}</span>
+              {isActive && (
+                <span
+                  className="absolute -bottom-px left-0 right-0 h-[2.5px] bg-blue-600 rounded-t-sm z-10 pointer-events-none"
+                  data-testid="active-tab-indicator"
+                />
+              )}
             </button>
           )
         })}

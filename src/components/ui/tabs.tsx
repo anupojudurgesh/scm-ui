@@ -55,7 +55,7 @@ function TabsList({
   )
 }
 
-function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
+function TabsTrigger({ className, children, ...props }: TabsPrimitive.Tab.Props) {
   return (
     <TabsPrimitive.Tab
       data-slot="tabs-trigger"
@@ -71,10 +71,30 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         // Line bar variant (modern line tab with bottom accent bar)
         "group-data-[variant=line]/tabs-list:border-b-2 group-data-[variant=line]/tabs-list:border-transparent group-data-[variant=line]/tabs-list:px-4 group-data-[variant=line]/tabs-list:py-3 group-data-[variant=line]/tabs-list:-mb-px",
         "group-data-[variant=line]/tabs-list:text-slate-500 group-data-[variant=line]/tabs-list:hover:text-slate-900 group-data-[variant=line]/tabs-list:hover:border-slate-300",
-        "group-data-[variant=line]/tabs-list:data-active:border-blue-600 group-data-[variant=line]/tabs-list:data-active:text-blue-600 group-data-[variant=line]/tabs-list:data-active:font-semibold",
-        "group-data-[variant=line]/tabs-list:data-[state=active]:border-blue-600 group-data-[variant=line]/tabs-list:data-[state=active]:text-blue-600 group-data-[variant=line]/tabs-list:data-[state=active]:font-semibold",
-        "group-data-[variant=line]/tabs-list:data-selected:border-blue-600 group-data-[variant=line]/tabs-list:data-selected:text-blue-600 group-data-[variant=line]/tabs-list:data-selected:font-semibold",
-        "group-data-[variant=line]/tabs-list:aria-selected:border-blue-600 group-data-[variant=line]/tabs-list:aria-selected:text-blue-600 group-data-[variant=line]/tabs-list:aria-selected:font-semibold",
+        // Direct active state styles on TabsTrigger (border-b-2 border-blue-600 text-blue-600)
+        "group-data-[variant=line]/tabs-list:data-active:border-b-2 group-data-[variant=line]/tabs-list:data-active:border-blue-600 group-data-[variant=line]/tabs-list:data-active:text-blue-600 group-data-[variant=line]/tabs-list:data-active:font-semibold",
+        "group-data-[variant=line]/tabs-list:data-[state=active]:border-b-2 group-data-[variant=line]/tabs-list:data-[state=active]:border-blue-600 group-data-[variant=line]/tabs-list:data-[state=active]:text-blue-600 group-data-[variant=line]/tabs-list:data-[state=active]:font-semibold",
+        "group-data-[variant=line]/tabs-list:data-selected:border-b-2 group-data-[variant=line]/tabs-list:data-selected:border-blue-600 group-data-[variant=line]/tabs-list:data-selected:text-blue-600 group-data-[variant=line]/tabs-list:data-selected:font-semibold",
+        "group-data-[variant=line]/tabs-list:aria-selected:border-b-2 group-data-[variant=line]/tabs-list:aria-selected:border-blue-600 group-data-[variant=line]/tabs-list:aria-selected:text-blue-600 group-data-[variant=line]/tabs-list:aria-selected:font-semibold",
+        // In case variant class is overridden or applied directly
+        "data-[state=active]:border-b-2 data-[state=active]:border-blue-600 data-[state=active]:text-blue-600",
+        "data-selected:border-b-2 data-selected:border-blue-600 data-selected:text-blue-600",
+        "aria-selected:border-b-2 aria-selected:border-blue-600 aria-selected:text-blue-600",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </TabsPrimitive.Tab>
+  )
+}
+
+function TabsIndicator({ className, ...props }: TabsPrimitive.Indicator.Props) {
+  return (
+    <TabsPrimitive.Indicator
+      data-slot="tabs-indicator"
+      className={cn(
+        "absolute -bottom-px left-0 h-[2.5px] bg-blue-600 transition-all rounded-t-sm z-10 pointer-events-none",
         className
       )}
       {...props}
@@ -92,4 +112,4 @@ function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
   )
 }
 
-export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants }
+export { Tabs, TabsList, TabsTrigger, TabsContent, TabsIndicator, tabsListVariants }

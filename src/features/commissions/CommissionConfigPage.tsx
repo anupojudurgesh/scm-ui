@@ -8,6 +8,7 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
+  TabsIndicator,
 } from '@/components/ui/tabs'
 import { FormSection } from '@/components/forms/FormSection'
 import { CircleSelector } from '@/components/forms/CircleSelector'
@@ -440,6 +441,7 @@ export function CommissionConfigPage({
                 <PhoneCall className="w-4 h-4 text-slate-400 group-data-[state=active]:text-blue-600 group-data-selected:text-blue-600 group-aria-selected:text-blue-600 transition-colors" />
                 <span>Landline</span>
               </TabsTrigger>
+              <TabsIndicator />
             </TabsList>
           </div>
 
