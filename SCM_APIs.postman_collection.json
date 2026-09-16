@@ -1,0 +1,2799 @@
+{
+  "info": {
+    "_postman_id": "7d3f9c2e-4b5a-4c8e-9e6a-1f2b3c4d5e6f",
+    "name": "SCM - Commission, User, Dealer & Plan APIs",
+    "description": "Postman collection generated from the Sales Channel Management (SCM) React app.\n\nCovers 4 modules:\n1. Commission Configuration (Prepaid FRC/OTF, Postpaid, Landline, Modification, Franchise Add Balance)\n2. User Management (User Creation, Search/Edit, Permissions, Status, Password, Logout)\n3. Dealer Management (Dealer & Franchise Creation, Search/Edit, Status, Hierarchy, MPIN Reset)\n4. Plan & Number Configuration (Plans, Denomination, MNP, Number Series)\n\nFlow note: Most write operations require a two-step OTP flow \u2014 call **Send OTP** (with a topic) then **Validate OTP** before the actual mutation. Response bodies use `{ status, message, data }` with a `status` field in the JSON body.\n\nEdit the collection variables (in the Variables tab) to set your session values.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://ui.example.com"
+    },
+    {
+      "key": "userApi",
+      "value": "https://ui.example.com/scm-user-api"
+    },
+    {
+      "key": "dbApi",
+      "value": "https://ui.example.com/scm-db-api"
+    },
+    {
+      "key": "plansApi",
+      "value": "https://ui.example.com/scm-plans-api"
+    },
+    {
+      "key": "dealerApi",
+      "value": "https://ui.example.com/scm-dealer-api"
+    },
+    {
+      "key": "franchiseApi",
+      "value": "https://ui.example.com/scmfmis-reports-api"
+    },
+    {
+      "key": "hrmsId",
+      "value": "123456"
+    },
+    {
+      "key": "username",
+      "value": "user@gmail.com"
+    },
+    {
+      "key": "msisdn",
+      "value": "98XXXXXXXX"
+    },
+    {
+      "key": "otp",
+      "value": ""
+    },
+    {
+      "key": "zoneId",
+      "value": ""
+    },
+    {
+      "key": "circleId",
+      "value": ""
+    },
+    {
+      "key": "ssaId",
+      "value": ""
+    },
+    {
+      "key": "roleId",
+      "value": "3"
+    },
+    {
+      "key": "status",
+      "value": "1"
+    },
+    {
+      "key": "dob",
+      "value": "1988-01-01"
+    },
+    {
+      "key": "firstName",
+      "value": "Sample"
+    },
+    {
+      "key": "lastName",
+      "value": "User"
+    },
+    {
+      "key": "address",
+      "value": "Sample Address"
+    },
+    {
+      "key": "userIpAddress",
+      "value": "192.168.1.1"
+    },
+    {
+      "key": "oldPassword",
+      "value": ""
+    },
+    {
+      "key": "newPassword",
+      "value": ""
+    },
+    {
+      "key": "operation",
+      "value": "10069"
+    },
+    {
+      "key": "dealerType",
+      "value": ""
+    },
+    {
+      "key": "categoryId",
+      "value": ""
+    },
+    {
+      "key": "denomination",
+      "value": ""
+    },
+    {
+      "key": "commissionType",
+      "value": "1"
+    },
+    {
+      "key": "dtype",
+      "value": ""
+    },
+    {
+      "key": "sellerLevel",
+      "value": ""
+    },
+    {
+      "key": "fromAmount",
+      "value": ""
+    },
+    {
+      "key": "toAmount",
+      "value": ""
+    },
+    {
+      "key": "commissionId",
+      "value": ""
+    },
+    {
+      "key": "scmMsisdn",
+      "value": ""
+    },
+    {
+      "key": "gstNumber",
+      "value": ""
+    },
+    {
+      "key": "panId",
+      "value": ""
+    },
+    {
+      "key": "aadhaarId",
+      "value": ""
+    },
+    {
+      "key": "sno",
+      "value": ""
+    },
+    {
+      "key": "price",
+      "value": ""
+    },
+    {
+      "key": "planType",
+      "value": ""
+    },
+    {
+      "key": "numberSeries",
+      "value": ""
+    },
+    {
+      "key": "fabSeq",
+      "value": ""
+    },
+    {
+      "key": "srcMsisdn",
+      "value": ""
+    },
+    {
+      "key": "destMsisdn",
+      "value": ""
+    },
+    {
+      "key": "type",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": "456"
+    },
+    {
+      "key": "createdBy",
+      "value": "Channelpay007"
+    },
+    {
+      "key": "cdt",
+      "value": "05-13-2025 14:52:43"
+    },
+    {
+      "key": "mdt",
+      "value": "08-30-2025 12:19:36"
+    },
+    {
+      "key": "passwordChangeDate",
+      "value": "08-28-2025 09:08:50"
+    },
+    {
+      "key": "ipAddress",
+      "value": "172.212.134.200"
+    },
+    {
+      "key": "expiredate",
+      "value": "2025-10-18T14:52:43.068"
+    },
+    {
+      "key": "dealerPermissions",
+      "value": "1"
+    },
+    {
+      "key": "walletPermissions",
+      "value": "1"
+    },
+    {
+      "key": "userPermissions",
+      "value": "1"
+    },
+    {
+      "key": "commissionPermissions",
+      "value": "1"
+    },
+    {
+      "key": "plansNumberpermissions",
+      "value": "1"
+    },
+    {
+      "key": "reportsPermissions",
+      "value": "1"
+    },
+    {
+      "key": "stockCheck",
+      "value": "1"
+    },
+    {
+      "key": "dealerMpinReset",
+      "value": "1"
+    },
+    {
+      "key": "franchiseAddBalance",
+      "value": "1"
+    },
+    {
+      "key": "bulkRecharge",
+      "value": "1"
+    },
+    {
+      "key": "varepReports",
+      "value": "1"
+    },
+    {
+      "key": "userActivityReports",
+      "value": "1"
+    },
+    {
+      "key": "dealerStatus",
+      "value": "1"
+    },
+    {
+      "key": "transactionStatus",
+      "value": "1"
+    },
+    {
+      "key": "topupReversal",
+      "value": "1"
+    },
+    {
+      "key": "simSaleUpload",
+      "value": "1"
+    },
+    {
+      "key": "simInventory",
+      "value": "1"
+    },
+    {
+      "key": "pendingClearence",
+      "value": "1"
+    },
+    {
+      "key": "inReconsilation",
+      "value": "1"
+    },
+    {
+      "key": "mobileApp",
+      "value": "1"
+    },
+    {
+      "key": "deferredCommission",
+      "value": "1"
+    },
+    {
+      "key": "cbp",
+      "value": "1"
+    },
+    {
+      "key": "simUpgrade",
+      "value": "1"
+    },
+    {
+      "key": "mnp",
+      "value": "1"
+    },
+    {
+      "key": "frcStv",
+      "value": "1"
+    },
+    {
+      "key": "bulk_purge",
+      "value": "1"
+    },
+    {
+      "key": "e_auction",
+      "value": "1"
+    },
+    {
+      "key": "denominations",
+      "value": "1"
+    },
+    {
+      "key": "prepaidCommissions",
+      "value": "1"
+    },
+    {
+      "key": "postpaidCommissions",
+      "value": "1"
+    },
+    {
+      "key": "landlineCommissions",
+      "value": "1"
+    },
+    {
+      "key": "FOSCreation",
+      "value": "1"
+    },
+    {
+      "key": "adjustment_type",
+      "value": "1"
+    },
+    {
+      "key": "adjustment_amount",
+      "value": "2000"
+    },
+    {
+      "key": "wallet_type",
+      "value": "1"
+    },
+    {
+      "key": "gui_user",
+      "value": "Surya@324"
+    },
+    {
+      "key": "remarks",
+      "value": "testing"
+    }
+  ],
+  "item": [
+    {
+      "name": "Commission Configuration",
+      "item": [
+        {
+          "name": "Prepaid Commission (FRC & OTF)",
+          "item": [
+            {
+              "name": "Get Category",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/getCategory"
+              }
+            },
+            {
+              "name": "Get Circles Info (by HRMS)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/getCirclesInfo?hrmsId={{hrmsId}}"
+              }
+            },
+            {
+              "name": "Get Zone Based Circles",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/zonebasedcircles?zoneId={{zoneId}}"
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"PrepaidFrc\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Validate OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/validateOtp?otp={{otp}}&operation=10069&msisdn={{msisdn}}"
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"PrepaidOtf\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Save Commission Config (FRC)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/saveCommissionConfig",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"masterCategoryId\": \"{{masterCategoryId}}\",\n  \"circleId\": \"{{circleId}}\",\n  \"sellerCommission\": \"{{sellerCommission}}\",\n  \"fraCommission\": \"{{fraCommission}}\",\n  \"subCommission\": \"{{subCommission}}\",\n  \"tds\": \"{{tds}}\",\n  \"denomination\": \"{{denomination}}\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"commissionType\": \"{{commissionType}}\",\n  \"dtype\": \"{{dtype}}\",\n  \"createdGuiUser\": \"{{username}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Save Multiple Commission Config (All Circulation)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/savemultipleCommissionConfig?zoneId=0",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"masterCategoryId\": \"{{masterCategoryId}}\",\n  \"circleId\": \"{{circleId}}\",\n  \"sellerCommission\": \"{{sellerCommission}}\",\n  \"fraCommission\": \"{{fraCommission}}\",\n  \"subCommission\": \"{{subCommission}}\",\n  \"tds\": \"{{tds}}\",\n  \"denomination\": \"{{denomination}}\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"commissionType\": \"{{commissionType}}\",\n  \"dtype\": \"{{dtype}}\",\n  \"createdGuiUser\": \"{{username}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Save Multiple Commission Config (Zone)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/savemultipleCommissionConfig?zoneId={{zoneId}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"masterCategoryId\": \"{{masterCategoryId}}\",\n  \"circleId\": \"{{circleId}}\",\n  \"sellerCommission\": \"{{sellerCommission}}\",\n  \"fraCommission\": \"{{fraCommission}}\",\n  \"subCommission\": \"{{subCommission}}\",\n  \"tds\": \"{{tds}}\",\n  \"denomination\": \"{{denomination}}\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"commissionType\": \"{{commissionType}}\",\n  \"dtype\": \"{{dtype}}\",\n  \"createdGuiUser\": \"{{username}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Postpaid Commission",
+          "item": [
+            {
+              "name": "Get Category",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/getCategory"
+              }
+            },
+            {
+              "name": "Get Circles Info (by HRMS)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/getCirclesInfo?hrmsId={{hrmsId}}"
+              }
+            },
+            {
+              "name": "Get Zone Based Circles",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/zonebasedcircles?zoneId={{zoneId}}"
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"Postpaid\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Validate OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/validateOtp?otp={{otp}}&operation=10069&msisdn={{msisdn}}"
+              }
+            },
+            {
+              "name": "Postpaid Commission Config",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/postpaidCommissionConfig",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"categoryId\": \"{{categoryId}}\",\n  \"circleId\": \"{{circleId}}\",\n  \"tdsAmount\": \"{{tdsAmount}}\",\n  \"fraCommission\": \"{{fraCommission}}\",\n  \"subFraCommission\": 0,\n  \"actualCommission\": \"{{actualCommission}}\",\n  \"retailerCommission\": 0,\n  \"sellerLevel\": \"{{sellerLevel}}\",\n  \"cap_limit\": \"{{cap_limit}}\",\n  \"createdGuiUser\": \"{{username}}\",\n  \"zoneId\": \"{{zoneId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Landline Commission",
+          "item": [
+            {
+              "name": "Get Category",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/getCategory"
+              }
+            },
+            {
+              "name": "Get Circles Info (by HRMS)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/getCirclesInfo?hrmsId={{hrmsId}}"
+              }
+            },
+            {
+              "name": "Get Zone Based Circles",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/zonebasedcircles?zoneId={{zoneId}}"
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"Landline\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Validate OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/validateOtp?otp={{otp}}&operation=10069&msisdn={{msisdn}}"
+              }
+            },
+            {
+              "name": "Landline Commission Config",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/landlineCommissionConfig",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"categoryId\": \"{{categoryId}}\",\n  \"circleId\": \"{{circleId}}\",\n  \"tdsAmount\": \"{{tdsAmount}}\",\n  \"fraCommission\": 0,\n  \"subFraCommission\": 0,\n  \"retailerCommission\": 0,\n  \"sellerLevel\": \"{{sellerLevel}}\",\n  \"commissionId\": \"{{commissionId}}\",\n  \"commissionAmount\": \"{{commissionAmount}}\",\n  \"fromAmount\": \"{{fromAmount}}\",\n  \"toAmount\": \"{{toAmount}}\",\n  \"dtype\": \"{{dtype}}\",\n  \"zoneId\": \"{{zoneId}}\",\n  \"createdGuiUser\": \"{{username}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Commission Modification (Search & Edit)",
+          "item": [
+            {
+              "name": "Get Category",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/getCategory"
+              }
+            },
+            {
+              "name": "Fetch Prepaid FRC Commission",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/fetchCommission?denomination={{denomination}}&circleId={{circleId}}&categoryId={{categoryId}}&commissionType=1&username={{username}}&dtype={{dtype}}"
+              }
+            },
+            {
+              "name": "Fetch Prepaid OTF Commission",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/fetchPrepaidOTFCommission?denomination={{denomination}}&circleId={{circleId}}&categoryId={{categoryId}}&commissionType={{commissionType}}&username={{username}}&dtype={{dtype}}"
+              }
+            },
+            {
+              "name": "Fetch Postpaid Commission",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/fetchPostpaidCommission?circleId={{circleId}}&category={{categoryId}}&sellerLevel={{sellerLevel}}&username={{username}}"
+              }
+            },
+            {
+              "name": "Fetch Landline Commission",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/fetchLandlineCommission",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"circleId\": \"{{circleId}}\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"fromAmount\": \"{{fromAmount}}\",\n  \"toAmount\": \"{{toAmount}}\",\n  \"guiUsername\": \"{{username}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"Modify_PrepaidFRC\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Validate OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/validateOtp?otp={{otp}}&operation=10069&msisdn={{msisdn}}"
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"Modify_PrepaidOTF\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"Modify_Postpaid\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"Modify_Landline\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"DeleteprepaidOtf\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Update Commission Config",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/updateCommissionConfig",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"commissionId\": \"{{commissionId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Update Postpaid Commission",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/updatePostpaidCommission",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"commissionId\": \"{{commissionId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Update Landline Commission",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/updateLandlineCommission",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"commissionId\": \"{{commissionId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Delete Commission Config",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/deleteCommissionConfig?commissionId={{commissionId}}"
+              }
+            },
+            {
+              "name": "Delete Postpaid Commission",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/deletePostpaidCommission?commissionId={{commissionId}}"
+              }
+            },
+            {
+              "name": "Delete Landline Commission",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/deleteLandlineCommission?commissionId={{commissionId}}"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Franchise Add Balance",
+          "item": [
+            {
+              "name": "Franchise Add Balance Transactions",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scmfmis-reports-api/scm-franchise-gui/franchiseAddBalanceTransactions?circle={{circleId}}"
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"FranchiseAddbalanceApprove\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"FranchiseAddbalanceReject\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Validate OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/validateOtp?otp={{otp}}&operation=10069&msisdn={{msisdn}}"
+              }
+            },
+            {
+              "name": "Approve Franchise Add Balance",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scmfmis-reports-api/scm-franchise-gui/franchiseAddBalance/approve",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fabSeqList\": [\"{{fabSeq}}\"],\n  \"actionUser\": \"{{username}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Reject Franchise Add Balance",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scmfmis-reports-api/scm-franchise-gui/franchiseAddBalance/reject",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fabSeqList\": [\"{{fabSeq}}\"],\n  \"actionUser\": \"{{username}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User Management",
+      "item": [
+        {
+          "name": "OTP & Master Data",
+          "item": [
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"UserCreation\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"Modifyuseredit\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"Modifyuserpermission\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"Modifyuserstatus\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"ChangePassword\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Validate OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/validateOtp?otp={{otp}}&operation=10069&msisdn={{msisdn}}"
+              }
+            },
+            {
+              "name": "Get Zones",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/zones"
+              }
+            },
+            {
+              "name": "Get Zone Based Circles",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/zonebasedcircles?zoneId={{zoneId}}"
+              }
+            },
+            {
+              "name": "Get Circles Info (by HRMS)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/getCirclesInfo?hrmsId={{hrmsId}}"
+              }
+            },
+            {
+              "name": "Get Circles",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/circles"
+              }
+            },
+            {
+              "name": "Get SSAs (by Circle)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/ssas?circleId={{circleId}}"
+              }
+            },
+            {
+              "name": "Fetch Username",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/fetchusername?username={{username}}"
+              }
+            }
+          ]
+        },
+        {
+          "name": "User Creation",
+          "item": [
+            {
+              "name": "Create User",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/usercreation",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"hrmsId\": \"{{hrmsId}}\",\n  \"username\": \"{{username}}\",\n  \"mobileNumber\": \"{{msisdn}}\",\n  \"createdBy\": \"{{createdBy}}\",\n  \"updatedBy\": null,\n  \"firstName\": \"{{firstName}}\",\n  \"lastName\": \"{{lastName}}\",\n  \"address\": \"{{address}}\",\n  \"status\": {{status}},\n  \"cdt\": \"{{cdt}}\",\n  \"mdt\": \"{{mdt}}\",\n  \"roleId\": {{roleId}},\n  \"passwordChangeDate\": \"{{passwordChangeDate}}\",\n  \"ssaId\": {{ssaId}},\n  \"circleId\": {{circleId}},\n  \"dob\": \"{{dob}}\",\n  \"password\": \"{{newPassword}}\",\n  \"ipAddress\": \"{{ipAddress}}\",\n  \"expiredate\": \"{{expiredate}}\",\n  \"userIpAddress\": \"{{userIpAddress}}\",\n  \"loginStatus\": \"1\",\n  \"zoneId\": {{zoneId}},\n  \"roleName\": null,\n  \"permissions\": {\n    \"roleId\": {{roleId}},\n    \"username\": \"{{username}}\",\n    \"hrmsId\": \"{{hrmsId}}\",\n    \"roleName\": null,\n    \"dealerPermissions\": {{dealerPermissions}},\n    \"walletPermissions\": {{walletPermissions}},\n    \"userPermissions\": {{userPermissions}},\n    \"commissionPermissions\": {{commissionPermissions}},\n    \"plansNumberpermissions\": {{plansNumberpermissions}},\n    \"reportsPermissions\": {{reportsPermissions}},\n    \"stockCheck\": {{stockCheck}},\n    \"dealerMpinReset\": {{dealerMpinReset}},\n    \"franchiseAddBalance\": {{franchiseAddBalance}},\n    \"bulkRecharge\": {{bulkRecharge}},\n    \"varepReports\": {{varepReports}},\n    \"userActivityReports\": {{userActivityReports}},\n    \"dealerStatus\": {{dealerStatus}},\n    \"transactionStatus\": {{transactionStatus}},\n    \"topupReversal\": {{topupReversal}},\n    \"simSaleUpload\": {{simSaleUpload}},\n    \"simInventory\": {{simInventory}},\n    \"pendingClearence\": {{pendingClearence}},\n    \"inReconsilation\": {{inReconsilation}},\n    \"mobileApp\": {{mobileApp}},\n    \"deferredCommission\": {{deferredCommission}},\n    \"cbp\": {{cbp}},\n    \"simUpgrade\": {{simUpgrade}},\n    \"mnp\": {{mnp}},\n    \"frcStv\": {{frcStv}},\n    \"bulk_purge\": {{bulk_purge}},\n    \"e_auction\": {{e_auction}},\n    \"caf_postpaid\": null,\n    \"denominations\": {{denominations}},\n    \"prepaidCommissions\": {{prepaidCommissions}},\n    \"postpaidCommissions\": {{postpaidCommissions}},\n    \"landlineCommissions\": {{landlineCommissions}},\n    \"FOSCreation\": {{FOSCreation}}\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "User Fetch & Search",
+          "item": [
+            {
+              "name": "Fetch User (by UserName)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/getUser/{{username}}"
+              }
+            },
+            {
+              "name": "Get User by HRMS & Username",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/getUserwithHrmsIdandUsername?hrmsId={{hrmsId}}&username={{username}}&guiUsername={{username}}"
+              }
+            },
+            {
+              "name": "Modify User",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/modifyUser",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"{{username}}\",\n  \"hrmsId\": \"{{hrmsId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Permissions & Status",
+          "item": [
+            {
+              "name": "Get User Permission",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/getUserPermissionwithHrmsIdandUsername?hrmsId={{hrmsId}}&username={{username}}&guiUsername={{username}}"
+              }
+            },
+            {
+              "name": "Modify Permissions",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/modifyPermissions?guiUser={{username}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"{{username}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "User Status Check",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/userStatusCheck?username={{username}}"
+              }
+            },
+            {
+              "name": "Change User Status",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/userStatusChangewithHrmsIdandUsername?hrmsId={{hrmsId}}&username={{username}}&guiUsername={{username}}&status={{status}}"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Password & Logout",
+          "item": [
+            {
+              "name": "Change Password",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/changePassword",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"hrmsId\": \"{{hrmsId}}\",\n  \"username\": \"{{username}}\",\n  \"oldPassword\": \"{{oldPassword}}\",\n  \"newPassword\": \"{{newPassword}}\",\n  \"operation\": \"{{operation}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Logout",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/scmlogout?username={{username}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dealer Management",
+      "item": [
+        {
+          "name": "Master Data & OTP",
+          "item": [
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"Dealercreation\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"Modifydealer\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"DealerStatus\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"DealerHierarchyChange\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"DealerMpinreset\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Validate OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/validateOtp?otp={{otp}}&operation=10069&msisdn={{msisdn}}"
+              }
+            },
+            {
+              "name": "Get Circles Info (by HRMS)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/getCirclesInfo?hrmsId={{hrmsId}}"
+              }
+            },
+            {
+              "name": "Get Circles",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/circles"
+              }
+            },
+            {
+              "name": "Get SSAs (by Circle)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/ssas?circleId={{circleId}}"
+              }
+            },
+            {
+              "name": "Get Dealer Type",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/dealerType"
+              }
+            },
+            {
+              "name": "Get Category",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/getCategory"
+              }
+            },
+            {
+              "name": "Get Category by Dealer",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/getCategoryByDealer/{{dealerType}}"
+              }
+            },
+            {
+              "name": "Get Franchise",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/franchise?msisdn={{franchiseMsisdn}}"
+              }
+            },
+            {
+              "name": "Get SubFranchise",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/subFranchise?msisdn={{subFranchiseMsisdn}}"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dealer Creation",
+          "item": [
+            {
+              "name": "Create Dealer",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "dealer",
+                      "type": "file",
+                      "src": [],
+                      "disabled": false
+                    },
+                    {
+                      "key": "certificate",
+                      "type": "file",
+                      "src": [],
+                      "disabled": false
+                    }
+                  ]
+                },
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/createDealer",
+                "description": "Multipart: 'dealer' = JSON blob of: {   \"firstName\": \"{{firstName}}\",   \"createdBy\": \"{{username}}\",   \"lastName\": \"{{lastName}}\",   \"houseNumber\": \"{{houseNumber}}\",   \"iccidNumber\": \"{{iccidNumber}}\",   \"scmMsisdn\": \"{{scmMsisdn}}\",   \"mobile\": \"{{msisdn}}\",   \"dob\": \"{{dob}}\",   \"address\": \"{{address}}\",   \"pincode\": \"{{pincode}}\",   \"dealerType\": \"{{dealerType}}\",   \"circleId\": \"{{circleId}}\",   \"emailId\": \"{{emailId}}\",   \"aadhaarId\": \"{{aadhaarId}}\",   \"panId\": \"{{panId}}\",   \"ssaId\": \"{{ssaId}}\",   \"category\": \"{{category}}\",   \"franchiseMsisdn\": \"{{franchiseMsisdn}}\",   \"subFranchiseMsisdn\": \"{{subFranchiseMsisdn}}\",   \"gstNumber\": \"{{gstNumber}}\",   \"tds\": \"{{tds}}\",   \"tdsCategory\": \"{{tdsCategory}}\",   \"panFromDate\": \"{{panFromDate}}\",   \"panToDate\": \"{{panToDate}}\" }"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Franchise Creation",
+          "item": [
+            {
+              "name": "Create Dealer",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "dealer",
+                      "type": "file",
+                      "src": [],
+                      "disabled": false
+                    },
+                    {
+                      "key": "certificate",
+                      "type": "file",
+                      "src": [],
+                      "disabled": false
+                    }
+                  ]
+                },
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/createDealer",
+                "description": "Multipart: 'dealer' = JSON blob of: {   \"firstName\": \"{{firstName}}\",   \"createdBy\": \"{{username}}\",   \"lastName\": \"{{lastName}}\",   \"houseNumber\": \"{{houseNumber}}\",   \"iccidNumber\": \"{{iccidNumber}}\",   \"scmMsisdn\": \"{{scmMsisdn}}\",   \"mobile\": \"{{msisdn}}\",   \"dob\": \"{{dob}}\",   \"address\": \"{{address}}\",   \"pincode\": \"{{pincode}}\",   \"dealerType\": \"{{dealerType}}\",   \"circleId\": \"{{circleId}}\",   \"emailId\": \"{{emailId}}\",   \"aadhaarId\": \"{{aadhaarId}}\",   \"panId\": \"{{panId}}\",   \"ssaId\": \"{{ssaId}}\",   \"category\": \"{{category}}\",   \"franchiseMsisdn\": \"{{franchiseMsisdn}}\",   \"subFranchiseMsisdn\": \"{{subFranchiseMsisdn}}\" }"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dealer Search & Edit",
+          "item": [
+            {
+              "name": "Fetch Dealer",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/fetchDealer?mobile={{msisdn}}&gui_username={{username}}"
+              }
+            },
+            {
+              "name": "Fetch Dealer Data",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/fetchDealerData?msisdn={{msisdn}}&gui_username={{username}}"
+              }
+            },
+            {
+              "name": "Update Dealer",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/updateDealer",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"dealerId\": \"{{dealerId}}\",\n  \"dealerCode\": \"{{dealerCode}}\",\n  \"scmMsisdn\": \"{{scmMsisdn}}\",\n  \"firstName\": \"{{firstName}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Check Dealer by PAN",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/checkDealerByPan?panId={{panId}}"
+              }
+            },
+            {
+              "name": "Check Dealer by Aadhaar",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/checkDealerByAadhar?aadharId={{aadhaarId}}"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dealer Tree / Status / Hierarchy / MPIN",
+          "item": [
+            {
+              "name": "Dealer List",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/dealerList?msisdn={{msisdn}}&username={{username}}"
+              }
+            },
+            {
+              "name": "Fetch Dealer (by MSISDN)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/dealer/{{msisdn}}"
+              }
+            },
+            {
+              "name": "Dealer Status Check",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/dealerStatusCheck?msisdn={{msisdn}}"
+              }
+            },
+            {
+              "name": "Change Dealer Status",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/dealerStatusChange?msisdn={{msisdn}}&username={{username}}&status={{status}}"
+              }
+            },
+            {
+              "name": "Purge Dealer",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/purgeDealer?msisdn={{msisdn}}&username={{username}}"
+              }
+            },
+            {
+              "name": "Dealer With Mobile (Source)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/dealerWithMobile?msisdn={{srcMsisdn}}&guiUsername={{username}}"
+              }
+            },
+            {
+              "name": "Dealer With Mobile (Dest)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/dealerWithMobile?msisdn={{destMsisdn}}&guiUsername={{username}}"
+              }
+            },
+            {
+              "name": "Change Dealer Hierarchy",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/changeDealerHierarchy?srcMsisdn={{srcMsisdn}}&parentMsisdn={{destMsisdn}}&guiUsername={{username}}&type={{type}}"
+              }
+            },
+            {
+              "name": "Reset Dealer MPIN",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-dealer-api/scm-dealer-api/resetMpin?msisdn={{msisdn}}&username={{username}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Plan & Number Configuration",
+      "item": [
+        {
+          "name": "Master Data & OTP",
+          "item": [
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"Addnewplan\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"Denominationconfiguration\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"ADD MNP\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"AddnumberSeries\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"Addplan\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"ModifyMnp\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"ModfifynumberSeries\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"DeleteNumberseries\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/sendOtp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"operation\": \"10069\",\n  \"topic\": \"DeleteMnp\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Validate OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/validateOtp?otp={{otp}}&operation=10069&msisdn={{msisdn}}"
+              }
+            },
+            {
+              "name": "Get Circles Info (by HRMS)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-user-api/scm-user-api/getCirclesInfo?hrmsId={{hrmsId}}"
+              }
+            },
+            {
+              "name": "Get Zone Based Circles",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/zonebasedcircles?zoneId={{zoneId}}"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Plan Configuration",
+          "item": [
+            {
+              "name": "Download/Get Plans",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/getplans"
+              }
+            },
+            {
+              "name": "Add Plan",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/addplan?username={{username}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"operator\": \"{{operator}}\",\n  \"denomination\": \"{{denomination}}\",\n  \"talkvalue\": \"{{talkvalue}}\",\n  \"country\": \"{{country}}\",\n  \"start_date\": \"{{start_date}}\",\n  \"end_date\": \"{{end_date}}\",\n  \"type\": \"{{type}}\",\n  \"description\": \"{{description}}\",\n  \"tab_name\": \"{{tab_name}}\",\n  \"circle\": \"{{circle}}\",\n  \"validity\": \"{{validity}}\",\n  \"from_date\": \"{{from_date}}\",\n  \"to_date\": \"{{to_date}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Update Plan",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/updateplan/{{sno}}?username={{username}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"sno\": \"{{sno}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Delete Plan",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/deleteplan/{{sno}}?username={{username}}"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Denomination Configuration",
+          "item": [
+            {
+              "name": "Fetch Recharge Plan",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/rechargePlan?price={{price}}&circleId={{circleId}}&planType={{planType}}"
+              }
+            },
+            {
+              "name": "Save Denomination",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/saveDenomination",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"rechargePlanName\": \"{{rechargePlanName}}\",\n  \"planType\": \"{{planType}}\",\n  \"price\": \"{{price}}\",\n  \"createdBy\": \"{{username}}\",\n  \"validity\": \"{{validity}}\",\n  \"description\": \"{{description}}\",\n  \"bundleName\": \"{{bundleName}}\",\n  \"bucketId\": \"{{bucketId}}\",\n  \"faceValue\": \"{{faceValue}}\",\n  \"netValue\": \"{{netValue}}\",\n  \"cardGroup\": \"{{cardGroup}}\",\n  \"varepDenom\": \"{{varepDenom}}\",\n  \"circleId\": \"{{circleId}}\",\n  \"vasDenom\": \"{{vasDenom}}\",\n  \"varepGroup\": \"{{varepGroup}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Save Multiple Denominations (Zone 0)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/saveMultipleDenominations?zoneId=0",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"rechargePlanName\": \"{{rechargePlanName}}\",\n  \"planType\": \"{{planType}}\",\n  \"price\": \"{{price}}\",\n  \"createdBy\": \"{{username}}\",\n  \"validity\": \"{{validity}}\",\n  \"description\": \"{{description}}\",\n  \"bundleName\": \"{{bundleName}}\",\n  \"bucketId\": \"{{bucketId}}\",\n  \"faceValue\": \"{{faceValue}}\",\n  \"netValue\": \"{{netValue}}\",\n  \"cardGroup\": \"{{cardGroup}}\",\n  \"varepDenom\": \"{{varepDenom}}\",\n  \"circleId\": \"{{circleId}}\",\n  \"vasDenom\": \"{{vasDenom}}\",\n  \"varepGroup\": \"{{varepGroup}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Save Multiple Denominations (Zone)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-plans-api/scm-product-api/saveMultipleDenominations?zoneId={{zoneId}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"rechargePlanName\": \"{{rechargePlanName}}\",\n  \"planType\": \"{{planType}}\",\n  \"price\": \"{{price}}\",\n  \"createdBy\": \"{{username}}\",\n  \"validity\": \"{{validity}}\",\n  \"description\": \"{{description}}\",\n  \"bundleName\": \"{{bundleName}}\",\n  \"bucketId\": \"{{bucketId}}\",\n  \"faceValue\": \"{{faceValue}}\",\n  \"netValue\": \"{{netValue}}\",\n  \"cardGroup\": \"{{cardGroup}}\",\n  \"varepDenom\": \"{{varepDenom}}\",\n  \"circleId\": \"{{circleId}}\",\n  \"vasDenom\": \"{{vasDenom}}\",\n  \"varepGroup\": \"{{varepGroup}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "MNP Configuration",
+          "item": [
+            {
+              "name": "Find MNP Data",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/findMnpData?msisdn={{msisdn}}&username={{username}}"
+              }
+            },
+            {
+              "name": "Save MNP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/savemnp",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"recipientNo\": 142,\n  \"circleId\": \"{{circleId}}\",\n  \"username\": \"{{username}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Modify MNP Data",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/modifyMnpData",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"recipientNo\": 142,\n  \"circleId\": \"{{circleId}}\",\n  \"username\": \"{{username}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Delete MNP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/deleteMnp?msisdn={{msisdn}}&username={{username}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"msisdn\": \"{{msisdn}}\",\n  \"recipientNo\": 142,\n  \"circleId\": \"{{circleId}}\",\n  \"username\": \"{{username}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Number Series Configuration",
+          "item": [
+            {
+              "name": "Get Number Series",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/getnumberseries?username={{username}}&series={{numberSeries}}"
+              }
+            },
+            {
+              "name": "Add Number Series",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/addnumberseries?username={{username}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"circleId\": \"{{circleId}}\",\n  \"numberSeries\": \"{{numberSeries}}\",\n  \"numberSeriesId\": \"{{numberSeriesId}}\",\n  \"inId\": 1,\n  \"username\": \"{{username}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Save Number Series (Edit)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/saveNumberSeries",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"zoneId\": \"{{zoneId}}\",\n  \"circleId\": \"{{circleId}}\",\n  \"seqNo\": \"{{seqNo}}\",\n  \"number_series\": \"{{numberSeries}}\",\n  \"inId\": \"{{inId}}\",\n  \"username\": \"{{username}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Edit Number Series",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/editnumberseries?username={{username}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"numberSeries\": \"{{numberSeries}}\",\n  \"inId\": \"{{inId}}\",\n  \"circleId\": \"{{circleId}}\",\n  \"username\": \"{{username}}\",\n  \"numberSeriesId\": \"{{numberSeriesId}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Purge Number Series",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": "https://ui.example.com/scm-db-api/masterdata-db-api/purgenumberseries?username={{username}}&series={{numberSeries}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Wallet Management",
+      "item": [
+        {
+          "name": "Wallet Adjustment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "https://ui.example.com/scm-stock-api/stock-api/walletAdjustment",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dlr_msisdn\": \"{{msisdn}}\",\n  \"adjustment_type\": {{adjustment_type}},\n  \"adjustment_amount\": {{adjustment_amount}},\n  \"wallet_type\": {{wallet_type}},\n  \"gui_user\": \"{{gui_user}}\",\n  \"remarks\": \"{{remarks}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
